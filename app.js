@@ -314,6 +314,12 @@ function isKnown(exe) {
 
 function categorize(app, title) {
   if (BROWSERS.has(app) && title) {
+    // manuelle Website-Zuordnung hat Vorrang vor den automatischen Titel-Regeln
+    const site = browserSite(title);
+    if (site) {
+      const wkey = "web::" + site.toLowerCase();
+      if (state.overrides[wkey] && CATEGORIES[state.overrides[wkey]]) return state.overrides[wkey];
+    }
     for (const [re, cat] of TITLE_RULES) if (re.test(title)) return cat;
   }
   return appCategory(app);
@@ -674,16 +680,13 @@ function renderStats() {
   const appRows = topApps.map(([key, a]) => {
     const mainCat = Object.entries(a.cats).sort((x, y) => y[1] - x[1])[0][0];
     const icon = a.web ? '<span class="app-web">🌐</span>' : "";
-    let right;
-    if (a.web) {
-      // Websites werden am Tab-Titel kategorisiert – kein Pro-App-Dropdown
-      right = `<span class="app-cat-tag" style="color:${CATEGORIES[mainCat].color}">${CATEGORIES[mainCat].name}</span>`;
-    } else {
-      const options = Object.entries(CATEGORIES).map(([ck, c]) =>
-        `<option value="${ck}" ${ck === appCategory(a.app) ? "selected" : ""}>${c.name}</option>`
-      ).join("");
-      right = `<select class="app-cat-select" data-app="${escapeHtml(a.app)}" title="Kategorie ändern">${options}</select>`;
-    }
+    // Websites per Website-Key umsortierbar, Programme per exe
+    const ovKey = a.web ? a.key : a.app;
+    const cur = state.overrides[ovKey] || mainCat;
+    const options = Object.entries(CATEGORIES).map(([ck, c]) =>
+      `<option value="${ck}" ${ck === cur ? "selected" : ""}>${c.name}</option>`
+    ).join("");
+    const right = `<select class="app-cat-select" data-key="${escapeHtml(ovKey)}" title="Kategorie ändern">${options}</select>`;
     const neu = (!a.web && !isKnown(a.app)) ? `<span class="badge-new" title="Wird bei der nächsten automatischen Prüfung von Claude kategorisiert">NEU</span>` : "";
     return `
       <div class="app-row">
@@ -710,12 +713,13 @@ function renderStats() {
     <div class="cat-rows">${catRows}</div>
     <div class="apps-heading">Top-Programme &amp; Websites</div>
     <div class="app-list">${appRows}</div>
-    <p class="stats-note">🌐 = Website (im Browser erkannt). Programm-Kategorien
-    über das Dropdown änderbar – wird lokal gespeichert und sofort angewendet.</p>`;
+    <p class="stats-note">🌐 = Website (im Browser erkannt). Jedes Programm <b>und
+    jede Website</b> lässt sich über das Dropdown in eine Kategorie einsortieren –
+    wird lokal gespeichert und sofort überall angewendet.</p>`;
 
   panel.querySelectorAll(".app-cat-select").forEach(sel => {
     sel.addEventListener("change", () => {
-      state.overrides[sel.dataset.app] = sel.value;
+      state.overrides[sel.dataset.key] = sel.value;
       saveJSON("zeitblick.appOverrides", state.overrides);
       recategorizeAll();
       render();

@@ -65,6 +65,10 @@ kommunikation, soziale_medien, browsing, gaming, unterhaltung, windows, system`.
 - **Website erkennen:** `SITE_RULES` (Regex → Anzeigename, Reihenfolge = Priorität)
   für den Namen, `TITLE_RULES` (Regex → Kategorie) für die Kategorie. Beides greift
   am Browser-Fenstertitel.
+- **Website manuell umsortieren:** Im Tages-Panel (rechts, `renderStats`) hat auch
+  jede Website ein Kategorie-Dropdown. Die Wahl wird in `state.overrides` unter dem
+  Website-Key `"web::<site>"` gespeichert und hat in `categorize()` Vorrang vor den
+  `TITLE_RULES`. (Programm-Overrides stehen unter dem exe-Namen.)
 - **Schöner Anzeigename:** `APP_NAMES` – `"r5apex_dx12.exe": "Apex Legends"`.
 - **Programm-Farben (Modus „nach Programm“):** Palette `APP_PALETTE`; Zuordnung in
   `rebuildAppColors()` nach Nutzungsdauer.

@@ -76,8 +76,11 @@ Oben lässt sich zwischen zwei Ansichten umschalten (**Kalender / Statistik**):
   oder Häufigkeit.
 - **Kategorien im Detail**: pro Kategorie aufgeschlüsselt, welche einzelnen
   Programme und Websites dahinterstecken.
-- **Kategorien anpassen**: Dropdown neben jedem Programm – die Zuordnung wird
-  im Browser gespeichert (localStorage)
+- **Kategorien anpassen**: Dropdown neben jedem Programm **und jeder Website**
+  (rechte Tages-Leiste) – so kannst du z. B. YouTube auf „Unterhaltung“ oder eine
+  bestimmte Seite auf „Produktivität“ setzen. Deine Wahl überschreibt die
+  automatische Zuordnung und gilt nur für diese eine Website; gespeichert im
+  Browser (localStorage).
 - **Automatische Kategorisierung neuer Apps**: Eine geplante Claude-Aufgabe
   („Zeitblick: neue Apps automatisch kategorisieren“, täglich 20:00 Uhr,
   sichtbar unter „Scheduled“ in der Claude-App) prüft die Tracking-Daten der
