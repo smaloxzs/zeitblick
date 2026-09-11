@@ -76,6 +76,9 @@ Oben lässt sich zwischen zwei Ansichten umschalten (**Kalender / Statistik**):
   oder Häufigkeit.
 - **Kategorien im Detail**: pro Kategorie aufgeschlüsselt, welche einzelnen
   Programme und Websites dahinterstecken.
+- **Im Browser**: eigene Auswertung nur für die Browser-Zeit – ein Donut zeigt,
+  wie sich das Surfen auf Kategorien verteilt (nicht alles „Browsing“, sondern
+  z. B. Soziale Medien / Unterhaltung / Lernen) plus die meistbesuchten Websites.
 - **Kategorien anpassen**: Dropdown neben jedem Programm **und jeder Website**
   (rechte Tages-Leiste) – so kannst du z. B. YouTube auf „Unterhaltung“ oder eine
   bestimmte Seite auf „Produktivität“ setzen. Deine Wahl überschreibt die

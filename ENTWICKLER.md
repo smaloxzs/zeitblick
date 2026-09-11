@@ -85,7 +85,10 @@ kommunikation, soziale_medien, browsing, gaming, unterhaltung, windows, system`.
 - `renderCalendar()` – Wochenkalender, **Zeitachse invertiert** (früh unten, spät
   oben) via CSS `bottom`.
 - `renderStatsView()` – Statistik für Tag/Woche/Monat; `barChart()` (generisch),
-  `hourlyBuckets()` (Tagesansicht stündlich), `donutSVG()`.
+  `hourlyBuckets()` (Tagesansicht stündlich), `donutSVG()`. Enthält auch die
+  **Browser-Karte** („Im Browser“): filtert `allSessions` auf `BROWSERS`, aggregiert
+  separat → Donut nach Kategorie + Top-Websites (zeigt, wie sich die Browser-Zeit
+  auf Kategorien verteilt).
 - `periodDays()` / `periodLabel()` / `navigate(dir)` – Zeitraum-Logik.
 
 Alle Diagramme sind handgerolltes Inline-SVG, keine Bibliotheken.

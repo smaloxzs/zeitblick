@@ -909,6 +909,41 @@ function renderStatsView() {
     summary = `${activeDays} von ${days.length} Tagen aktiv · Ø ${fmtDur(agg.total / Math.max(1, activeDays))} pro aktivem Tag · ${Object.keys(agg.apps).length} Programme &amp; Websites`;
   }
 
+  // Browser-Auswertung: wofür wird der Browser genutzt (Kategorien + Websites)
+  const browserSessions = allSessions.filter(s => BROWSERS.has(s.app));
+  const bagg = aggregate(browserSessions);
+  let browserCard = "";
+  if (bagg.total > 0) {
+    const bCatOrder = Object.keys(CATEGORIES).filter(c => bagg.catTotals[c] > 0)
+      .sort((x, y) => bagg.catTotals[y] - bagg.catTotals[x]);
+    const bSites = Object.entries(bagg.apps).sort((x, y) => y[1].dur - x[1].dur).slice(0, 12);
+    const bMax = bSites.length ? bSites[0][1].dur : 1;
+    const siteRows = bSites.map(([key, a]) => {
+      const mainCat = Object.entries(a.cats).sort((x, y) => y[1] - x[1])[0][0];
+      const col = state.colorMode === "app" ? appColor(a.key || a.app) : CATEGORIES[mainCat].color;
+      return `
+        <div class="hbar-row">
+          <span class="hbar-dot" style="background:${col}"></span>
+          <span class="hbar-name" title="${escapeHtml(a.label)}">${a.web ? "🌐 " : ""}${escapeHtml(a.label)}</span>
+          <div class="hbar-track"><div class="hbar-fill" style="width:${Math.max(2, a.dur / bMax * 100)}%;background:${col}"></div></div>
+          <span class="hbar-val">${fmtDur(a.dur)}</span>
+        </div>`;
+    }).join("");
+    browserCard = `
+      <div class="card">
+        <h2>Im Browser – wofür du den Browser nutzt <span class="h2-right">${fmtDur(bagg.total)} gesamt</span></h2>
+        <div class="browser-split">
+          <div class="donut-wrap">
+            ${donutSVG(bagg.catTotals, bagg.total, 128, 15)}
+            <div class="donut-center"><div class="dc-time" style="font-size:14px">${fmtDur(bagg.total)}</div><div class="dc-label">Browser</div></div>
+          </div>
+          <div class="browser-cats">${bCatOrder.map(c => catRowHTML(c, bagg.catTotals[c], bagg.total)).join("")}</div>
+        </div>
+        <div class="apps-heading" style="margin-top:16px">Meistbesuchte Websites &amp; Seiten</div>
+        <div class="browser-sites">${siteRows}</div>
+      </div>`;
+  }
+
   view.innerHTML = selector + `
     <div class="sv-grid">
       <div>
@@ -927,6 +962,7 @@ function renderStatsView() {
           </h2>
           ${appBars}
         </div>
+        ${browserCard}
         <div class="card">
           <h2>Kategorien im Detail – welche Programme &amp; Websites stecken dahinter</h2>
           ${catDetails}
