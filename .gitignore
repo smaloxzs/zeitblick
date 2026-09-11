@@ -1,0 +1,7 @@
+# Persönliche Tracking-Daten NICHT hochladen (bleiben lokal & privat)
+data/
+
+# Laufzeit-/temporäre Dateien
+zeitblick.pid
+*.pyc
+__pycache__/

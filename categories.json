@@ -1,0 +1,7 @@
+{
+  "_info": "Automatisch gelernte App-Kategorien für Zeitblick. Diese Datei wird von der geplanten Claude-Aufgabe 'Zeitblick: neue Apps kategorisieren' gepflegt. Gültige Kategorien: produktiv, design, lernen, kommunikation, soziale_medien, browsing, gaming, unterhaltung, windows, system. Manuelle Zuordnungen im Dashboard (Dropdown) haben immer Vorrang vor dieser Datei.",
+  "updated": "2026-09-11",
+  "apps": {
+    "searchapp.exe": { "cat": "windows", "name": "Windows-Suche" }
+  }
+}

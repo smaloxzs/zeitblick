@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zeitblick – Aktivitäts-Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>⏱️</text></svg>">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ══════════ Linke Seitenleiste ══════════ -->
+    <aside class="sidebar">
+      <div class="logo">
+        <span class="logo-mark">◔</span>
+        <div>
+          <div class="logo-name">Zeitblick</div>
+          <div class="logo-sub">Aktivitäts-Tracker</div>
+        </div>
+      </div>
+
+      <div class="tracker-status" id="trackerStatus">
+        <span class="status-dot off"></span>
+        <span class="status-text">Prüfe Tracker …</span>
+      </div>
+
+      <div class="side-section">
+        <div class="side-heading">Farbe der Blöcke</div>
+        <div class="color-switch">
+          <button id="colCat" class="seg2">nach Kategorie</button>
+          <button id="colApp" class="seg2">nach Programm</button>
+        </div>
+        <p class="side-hint">„nach Programm“ gibt jedem Spiel, Programm und jeder Website eine eigene Farbe.</p>
+      </div>
+
+      <div class="side-section">
+        <div class="side-heading">Kategorien</div>
+        <ul class="legend" id="legend"></ul>
+        <p class="side-hint">Klicken, um eine Kategorie im Kalender aus- bzw. einzublenden.</p>
+      </div>
+
+      <div class="side-section">
+        <div class="side-heading">Detailgrad</div>
+        <div class="color-switch">
+          <button id="detGrob" class="seg2">Zusammengefasst</button>
+          <button id="detGenau" class="seg2">Genau (1:1)</button>
+        </div>
+        <p class="side-hint">„Zusammengefasst“ schluckt kurze Weg-Klicks (&lt; 1 Min.) in die laufende Tätigkeit – z. B. bleibt Valorant ein Block, auch wenn du zwischendurch kurz wegtabst. „Genau“ zeigt jede Aktivität ab 5 Sek. einzeln.</p>
+      </div>
+
+      <div class="side-footer">
+        <div class="side-heading">Tracker starten</div>
+        <p class="side-hint">Doppelklick auf <code>start-tracker.cmd</code> im Projektordner – läuft dann unsichtbar im Hintergrund.</p>
+      </div>
+    </aside>
+
+    <!-- ══════════ Hauptbereich: Wochenkalender ══════════ -->
+    <main class="main">
+      <header class="topbar">
+        <div class="nav-btns">
+          <button id="prevWeek" class="btn icon-btn" title="Vorherige Woche">‹</button>
+          <button id="todayBtn" class="btn">Heute</button>
+          <button id="nextWeek" class="btn icon-btn" title="Nächste Woche">›</button>
+        </div>
+        <div class="view-switch">
+          <button id="viewCal" class="seg active">Kalender</button>
+          <button id="viewStats" class="seg">Statistik</button>
+        </div>
+        <h1 id="weekLabel">…</h1>
+        <div class="week-total" id="weekTotal"></div>
+        <div class="zoom-btns">
+          <button id="zoomOut" class="btn icon-btn" title="Herauszoomen">−</button>
+          <button id="zoomIn" class="btn icon-btn" title="Hineinzoomen (genauere Zeitansicht)">+</button>
+        </div>
+      </header>
+
+      <div class="cal-header-row">
+        <div class="cal-gutter-spacer"></div>
+        <div class="cal-day-headers" id="calHeader"></div>
+      </div>
+
+      <div class="cal-scroll" id="calScroll">
+        <div class="cal-grid">
+          <div class="time-col" id="timeCol"></div>
+          <div class="days-grid" id="daysGrid"></div>
+        </div>
+      </div>
+
+      <div class="stats-view" id="statsView" hidden></div>
+    </main>
+
+    <!-- ══════════ Rechte Statistik-Leiste ══════════ -->
+    <aside class="stats" id="statsPanel">
+      <div class="stats-empty">Lade Daten …</div>
+    </aside>
+
+  </div>
+
+  <div id="tooltip" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
