@@ -106,13 +106,13 @@ Oben lässt sich zwischen zwei Ansichten umschalten (**Kalender / Statistik**):
   unterschiedlich). Farben sind in Kalender und Statistik identisch.
 - **Zoom**: Mit den +/−-Buttons oben rechts die Zeitachse vergrößern/verkleinern
   (wird gespeichert), um genauer zu sehen, was wann lief
-- **Detailgrad** (links umschaltbar): „Zusammengefasst“ (Standard) schluckt
-  kurze Weg-Klicks (< 1 Min.) in die laufende Tätigkeit und überbrückt kurze
-  Pausen (bis 5 Min.) bei gleicher Tätigkeit – so bleibt z. B. eine Valorant-
-  Session ein sauberer Block, auch wenn du zwischendurch kurz wegtabst.
-  Aktivitäten ab 1 Min. bleiben sichtbar. „Genau (1:1)“ zeigt jede Aktivität ab
-  5 Sek. einzeln. Die **Statistik zählt immer exakt**, unabhängig vom Detailgrad
-  – nur die Kalender-Darstellung ändert sich.
+- **Detailgrad** (links umschaltbar, drei Stufen): **„< 1 Min.“** (Standard)
+  schluckt Weg-Klicks unter 1 Minute in die laufende Tätigkeit, **„< 2 Min.“**
+  schluckt sogar Wechsel bis unter 2 Minuten, **„Genau“** zeigt jede Aktivität ab
+  5 Sek. einzeln. In beiden Zusammenfassen-Stufen werden zudem kurze Pausen
+  (bis 5 Min.) bei gleicher Tätigkeit überbrückt – so bleibt z. B. eine Valorant-
+  Session ein sauberer Block. Die **Statistik zählt immer exakt**, unabhängig vom
+  Detailgrad – nur die Kalender-Darstellung ändert sich.
 - Kategorien per Klick in der Legende ein-/ausblenden
 
 ## Technik

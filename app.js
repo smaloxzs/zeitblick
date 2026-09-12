@@ -4,7 +4,8 @@
 const ZOOM_MIN = 48, ZOOM_MAX = 192, ZOOM_STEP = 24, ZOOM_DEFAULT = 96; // px pro Stunde
 const BURST_GAP = 300;           // Sek. Pause, ab der eine neue "Nutzung" zählt
 const MERGE_GAP = 90;            // Sek. – benachbarte gleiche Blöcke verschmelzen
-const ABSORB_MAX = 60;           // "Zusammengefasst": kürzere Wechsel (< 1 Min.) werden geschluckt
+const ABSORB_1MIN = 60;          // Detailgrad "< 1 Min.": kürzere Wechsel werden geschluckt
+const ABSORB_2MIN = 120;         // Detailgrad "< 2 Min.": kürzere Wechsel werden geschluckt
 const DETAIL_MIN = 5;            // "Genau": alles ab so vielen Sek. anzeigen
 const REFRESH_MS = 30000;        // Auto-Aktualisierung
 
@@ -126,7 +127,8 @@ const state = {
   learned: {},       // exe → {cat, name} aus categories.json (automatisch gepflegt)
   overrides: loadJSON("zeitblick.appOverrides", {}),
   hiddenCats: new Set(loadJSON("zeitblick.hiddenCats", [])),
-  detail: loadJSON("zeitblick.detail", "grob"),   // "grob" (zusammengefasst) | "genau"
+  // "min1" (< 1 Min. zusammenfassen) | "min2" (< 2 Min.) | "genau" (1:1); altes "grob" -> "min1"
+  detail: (() => { const v = loadJSON("zeitblick.detail", "min1"); return v === "grob" ? "min1" : (["min1", "min2", "genau"].includes(v) ? v : "min1"); })(),
   hourH: Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, loadJSON("zeitblick.hourH", ZOOM_DEFAULT))),
   view: loadJSON("zeitblick.view", "kalender"),   // "kalender" | "statistik"
   statsPeriod: loadJSON("zeitblick.statsPeriod", "woche"), // "tag" | "woche" | "monat"
@@ -466,6 +468,8 @@ function recategorizeAll() {
 /* Benachbarte Blöcke gleicher App+Kategorie fürs Rendern verschmelzen */
 function mergedForDisplay(sessions) {
   const grob = state.detail !== "genau";
+  // Absorptions-Schwelle je nach Detailgrad: "< 1 Min." oder "< 2 Min."
+  const absorbMax = state.detail === "min2" ? ABSORB_2MIN : ABSORB_1MIN;
   // "Zusammengefasst" überbrückt größere Lücken bei gleicher Tätigkeit, damit
   // z. B. eine Valorant-Session trotz kurzer Pausen ein Block bleibt.
   const mergeGap = grob ? BURST_GAP : MERGE_GAP;
@@ -482,8 +486,8 @@ function mergedForDisplay(sessions) {
       last.title = s.title || last.title;
       continue;
     }
-    // 2) "Zusammengefasst": kurzer Weg-Klick (< ABSORB_MAX) → in laufenden Block schlucken
-    if (grob && last && s.dur < ABSORB_MAX && gap <= mergeGap) {
+    // 2) "Zusammengefasst": kurzer Weg-Klick (< absorbMax) → in laufenden Block schlucken
+    if (grob && last && s.dur < absorbMax && gap <= mergeGap) {
       last.end = s.end; last.dur = (last.end - last.start) / 1000;
       continue;
     }
@@ -1103,7 +1107,8 @@ $("#todayBtn").addEventListener("click", () => {
 });
 
 function applyDetail() {
-  $("#detGrob").classList.toggle("active", state.detail !== "genau");
+  $("#det1").classList.toggle("active", state.detail === "min1");
+  $("#det2").classList.toggle("active", state.detail === "min2");
   $("#detGenau").classList.toggle("active", state.detail === "genau");
 }
 function setDetail(mode) {
@@ -1112,7 +1117,8 @@ function setDetail(mode) {
   applyDetail();
   render();
 }
-$("#detGrob").addEventListener("click", () => setDetail("grob"));
+$("#det1").addEventListener("click", () => setDetail("min1"));
+$("#det2").addEventListener("click", () => setDetail("min2"));
 $("#detGenau").addEventListener("click", () => setDetail("genau"));
 
 function applyColorMode() {

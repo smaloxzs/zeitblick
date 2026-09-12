@@ -1,7 +1,14 @@
 {
   "_info": "Automatisch gelernte App-Kategorien für Zeitblick. Diese Datei wird von der geplanten Claude-Aufgabe 'Zeitblick: neue Apps kategorisieren' gepflegt. Gültige Kategorien: produktiv, design, lernen, kommunikation, soziale_medien, browsing, gaming, unterhaltung, windows, system. Manuelle Zuordnungen im Dashboard (Dropdown) haben immer Vorrang vor dieser Datei.",
-  "updated": "2026-09-11",
+  "updated": "2026-09-12",
   "apps": {
-    "searchapp.exe": { "cat": "windows", "name": "Windows-Suche" }
+    "searchapp.exe": { "cat": "windows", "name": "Windows-Suche" },
+    "riot client.exe": { "cat": "gaming", "name": "Riot Client" },
+    "start_protected_game.exe": { "cat": "gaming", "name": "Apex Legends (Start)" },
+    "soul chained.exe": { "cat": "gaming", "name": "Soul Chained" },
+    "whatsapp.root.exe": { "cat": "kommunikation", "name": "WhatsApp" },
+    "amdsoftwareinstaller.exe": { "cat": "system", "name": "AMD Software Installer" },
+    "whql-amd-software-adrenalin-edition-26.5.2-win11-may-vega-polaris.exe": { "cat": "system", "name": "AMD Treiber-Installation" },
+    "_unins.tmp": { "cat": "system", "name": "Deinstallations-Programm" }
   }
 }
