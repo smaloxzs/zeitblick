@@ -95,6 +95,37 @@ code {
   margin-bottom: 10px;
 }
 
+/* ── Umschalter „Ansicht“ / „Fokus-Modus“ (Seitenleiste) ── */
+
+.sidebar-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
+}
+.sidebar-tabs .stab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.sidebar-tabs .stab:hover { color: var(--text); }
+.sidebar-tabs .stab.active { background: var(--accent); color: #fff; }
+
+#sidebarAnsicht, #sidebarFokus {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
 .legend { list-style: none; display: flex; flex-direction: column; gap: 2px; }
 .legend li {
   display: flex; align-items: center; gap: 9px;
@@ -149,6 +180,7 @@ code {
 .focus-sub-heading { margin-top: 4px; }
 
 .chip-row-app { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.chip-row-scroll { max-height: 96px; overflow-y: auto; padding-right: 2px; align-content: flex-start; }
 .fchip {
   background: var(--panel-2);
   border: 1px solid var(--border);

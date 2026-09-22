@@ -130,6 +130,16 @@ Alle Diagramme sind handgerolltes Inline-SVG, keine Bibliotheken.
   Alles andere faellt an `SimpleHTTPRequestHandler` durch (normales Datei-Serving
   bleibt unangetastet).
 
+**Seitenleisten-Umschalter „Ansicht“ / „Fokus-Modus“**: Die Sidebar zeigt immer
+nur EINEN der beiden Bereiche (`#sidebarAnsicht`: Farbe der Blöcke/Kategorien/
+Detailgrad; `#sidebarFokus`: Fokus-Modus/Tagesziel), umgeschaltet per
+Pill-Buttons `#tabAnsicht`/`#tabFokus` (`applySidebarTab()`/`setSidebarTab()`,
+localStorage `zeitblick.sidebarTab`, Standard "ansicht") — verhindert, dass die
+Sidebar so lang wird, dass man scrollen muss. Die Stichwort-Chips
+(`#focusBlockedChips`) haben zusätzlich `max-height:96px` + eigenen Scroll
+(Klasse `.chip-row-scroll`), damit eine lange Sperrliste nicht den ganzen
+Tab in die Höhe zieht.
+
 **app.js-Seite** (UI, Abschnitt „Fokus-Modus & Tagesziel“ ganz am Dateiende):
 - `refreshFocus()` pollt `/api/focus` alle 3 s, `renderFocus()` zeichnet Chips,
   Countdown, Toggles, blockierte-Stichworte-Liste und die Tagesziel-Leiste.

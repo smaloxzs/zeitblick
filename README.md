@@ -117,7 +117,12 @@ Oben lässt sich zwischen zwei Ansichten umschalten (**Kalender / Statistik**):
 
 ## Fokus-Modus (Pomodoro mit echter Ablenkungssperre)
 
-In der Seitenleiste, direkt unter dem Tracker-Status:
+Oben in der Seitenleiste schaltest du per Klick zwischen **„Ansicht“**
+(Kalender-Einstellungen wie bisher) und **„Fokus-Modus“** um – es ist immer
+nur einer der beiden Bereiche sichtbar, damit die Seitenleiste kompakt bleibt
+und nicht gescrollt werden muss.
+
+Im Fokus-Modus-Tab:
 
 - **Dauer wählen** (25 / 45 / 60 / 90 Min.) und **„Fokus starten“** klicken.
   Ein Countdown läuft, bis die Zeit um ist – dann kommt automatisch eine

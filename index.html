@@ -28,81 +28,92 @@
         <span class="status-text">Prüfe Tracker …</span>
       </div>
 
-      <div class="side-section focus-section" id="focusSection">
-        <div class="side-heading">Fokus-Modus</div>
+      <div class="sidebar-tabs">
+        <button id="tabAnsicht" class="stab active">Ansicht</button>
+        <button id="tabFokus" class="stab">Fokus-Modus</button>
+      </div>
 
-        <div id="focusIdle">
-          <div class="chip-row-app" id="focusDurations">
-            <button class="fchip" data-min="25">25 Min.</button>
-            <button class="fchip" data-min="45">45 Min.</button>
-            <button class="fchip" data-min="60">60 Min.</button>
-            <button class="fchip" data-min="90">90 Min.</button>
+      <!-- ── Tab „Ansicht“: Darstellung des Kalenders ── -->
+      <div id="sidebarAnsicht">
+        <div class="side-section">
+          <div class="side-heading">Farbe der Blöcke</div>
+          <div class="color-switch">
+            <button id="colCat" class="seg2">nach Kategorie</button>
+            <button id="colApp" class="seg2">nach Programm</button>
           </div>
-          <button class="btn-focus-start" id="focusStartBtn">▶ Fokus starten</button>
+          <p class="side-hint">„nach Programm“ gibt jedem Spiel, Programm und jeder Website eine eigene Farbe.</p>
         </div>
 
-        <div id="focusActive" hidden>
-          <div class="focus-live">
-            <span class="focus-live-mode" id="focusModeLabel">Fokus läuft</span>
-            <span class="focus-live-time" id="focusTimeLeft">25:00</span>
+        <div class="side-section">
+          <div class="side-heading">Kategorien</div>
+          <ul class="legend" id="legend"></ul>
+          <p class="side-hint">Klicken, um eine Kategorie im Kalender aus- bzw. einzublenden.</p>
+        </div>
+
+        <div class="side-section">
+          <div class="side-heading">Detailgrad</div>
+          <div class="color-switch">
+            <button id="det1" class="seg2" title="Weg-Klicks unter 1 Minute zusammenfassen">&lt; 1 Min.</button>
+            <button id="det2" class="seg2" title="Weg-Klicks unter 2 Minuten zusammenfassen">&lt; 2 Min.</button>
+            <button id="detGenau" class="seg2" title="Jede Aktivität einzeln zeigen">Genau</button>
           </div>
-          <button class="btn-focus-stop" id="focusStopBtn">Sitzung beenden</button>
+          <p class="side-hint">„Zusammengefasst“ schluckt kurze Weg-Klicks in die laufende Tätigkeit – z. B. bleibt Valorant ein Block, auch wenn du zwischendurch kurz wegtabst. Wähle, ob Wechsel unter 1 oder unter 2 Minuten geschluckt werden. „Genau“ zeigt jede Aktivität ab 5 Sek. einzeln.</p>
+        </div>
+      </div>
+
+      <!-- ── Tab „Fokus-Modus“: Pomodoro + Tagesziel ── -->
+      <div id="sidebarFokus" hidden>
+        <div class="side-section focus-section" id="focusSection">
+          <div class="side-heading">Fokus-Modus</div>
+
+          <div id="focusIdle">
+            <div class="chip-row-app" id="focusDurations">
+              <button class="fchip" data-min="25">25 Min.</button>
+              <button class="fchip" data-min="45">45 Min.</button>
+              <button class="fchip" data-min="60">60 Min.</button>
+              <button class="fchip" data-min="90">90 Min.</button>
+            </div>
+            <button class="btn-focus-start" id="focusStartBtn">▶ Fokus starten</button>
+          </div>
+
+          <div id="focusActive" hidden>
+            <div class="focus-live">
+              <span class="focus-live-mode" id="focusModeLabel">Fokus läuft</span>
+              <span class="focus-live-time" id="focusTimeLeft">25:00</span>
+            </div>
+            <button class="btn-focus-stop" id="focusStopBtn">Sitzung beenden</button>
+          </div>
+
+          <label class="toggle-row">
+            <input type="checkbox" id="focusNotifToggle" checked>
+            <span>Benachrichtigung bei Ablenkung</span>
+          </label>
+          <label class="toggle-row">
+            <input type="checkbox" id="focusBlockToggle" checked>
+            <span>Ablenkende Fenster automatisch minimieren</span>
+          </label>
+
+          <div id="focusBlockedWrap">
+            <div class="side-heading focus-sub-heading">Blockierte Stichworte</div>
+            <div class="chip-row-app chip-row-scroll" id="focusBlockedChips"></div>
+            <div class="focus-add-row">
+              <input type="text" id="focusAddInput" placeholder="z. B. facebook">
+              <button id="focusAddBtn" title="Hinzufügen">+</button>
+            </div>
+          </div>
+          <p class="side-hint">Fenster, deren Name oder Titel eines dieser Stichworte enthält, werden während einer Fokus-Sitzung automatisch minimiert, inklusive kurzer Erinnerung mit Ausnahme-Option.</p>
         </div>
 
-        <label class="toggle-row">
-          <input type="checkbox" id="focusNotifToggle" checked>
-          <span>Benachrichtigung bei Ablenkung</span>
-        </label>
-        <label class="toggle-row">
-          <input type="checkbox" id="focusBlockToggle" checked>
-          <span>Ablenkende Fenster automatisch minimieren</span>
-        </label>
-
-        <div id="focusBlockedWrap">
-          <div class="side-heading focus-sub-heading">Blockierte Stichworte</div>
-          <div class="chip-row-app" id="focusBlockedChips"></div>
-          <div class="focus-add-row">
-            <input type="text" id="focusAddInput" placeholder="z. B. facebook">
-            <button id="focusAddBtn" title="Hinzufügen">+</button>
+        <div class="side-section goal-section" id="goalSection">
+          <div class="side-heading">Tagesziel</div>
+          <div class="goal-bar-track"><div class="goal-bar-fill" id="goalBarFill" style="width:0%"></div></div>
+          <div class="goal-line" id="goalLine">– von – Std. getrackt</div>
+          <div class="goal-edit-row">
+            <span>Ziel:</span>
+            <input type="number" id="goalHoursInput" min="1" max="16" step="0.5" value="6">
+            <span>Std./Tag</span>
           </div>
         </div>
-        <p class="side-hint">Fenster, deren Name oder Titel eines dieser Stichworte enthält, werden während einer Fokus-Sitzung automatisch minimiert, inklusive kurzer Erinnerung mit Ausnahme-Option.</p>
-      </div>
-
-      <div class="side-section goal-section" id="goalSection">
-        <div class="side-heading">Tagesziel</div>
-        <div class="goal-bar-track"><div class="goal-bar-fill" id="goalBarFill" style="width:0%"></div></div>
-        <div class="goal-line" id="goalLine">– von – Std. getrackt</div>
-        <div class="goal-edit-row">
-          <span>Ziel:</span>
-          <input type="number" id="goalHoursInput" min="1" max="16" step="0.5" value="6">
-          <span>Std./Tag</span>
-        </div>
-      </div>
-
-      <div class="side-section">
-        <div class="side-heading">Farbe der Blöcke</div>
-        <div class="color-switch">
-          <button id="colCat" class="seg2">nach Kategorie</button>
-          <button id="colApp" class="seg2">nach Programm</button>
-        </div>
-        <p class="side-hint">„nach Programm“ gibt jedem Spiel, Programm und jeder Website eine eigene Farbe.</p>
-      </div>
-
-      <div class="side-section">
-        <div class="side-heading">Kategorien</div>
-        <ul class="legend" id="legend"></ul>
-        <p class="side-hint">Klicken, um eine Kategorie im Kalender aus- bzw. einzublenden.</p>
-      </div>
-
-      <div class="side-section">
-        <div class="side-heading">Detailgrad</div>
-        <div class="color-switch">
-          <button id="det1" class="seg2" title="Weg-Klicks unter 1 Minute zusammenfassen">&lt; 1 Min.</button>
-          <button id="det2" class="seg2" title="Weg-Klicks unter 2 Minuten zusammenfassen">&lt; 2 Min.</button>
-          <button id="detGenau" class="seg2" title="Jede Aktivität einzeln zeigen">Genau</button>
-        </div>
-        <p class="side-hint">„Zusammengefasst“ schluckt kurze Weg-Klicks in die laufende Tätigkeit – z. B. bleibt Valorant ein Block, auch wenn du zwischendurch kurz wegtabst. Wähle, ob Wechsel unter 1 oder unter 2 Minuten geschluckt werden. „Genau“ zeigt jede Aktivität ab 5 Sek. einzeln.</p>
       </div>
 
       <div class="side-footer">

@@ -1134,6 +1134,24 @@ function setColorMode(mode) {
 $("#colCat").addEventListener("click", () => setColorMode("kategorie"));
 $("#colApp").addEventListener("click", () => setColorMode("app"));
 
+/* ═══════════════ Seitenleisten-Umschalter: Ansicht / Fokus-Modus ═══════════════ */
+
+function applySidebarTab() {
+  const tab = loadJSON("zeitblick.sidebarTab", "ansicht");
+  const fokus = tab === "fokus";
+  $("#sidebarAnsicht").hidden = fokus;
+  $("#sidebarFokus").hidden = !fokus;
+  $("#tabAnsicht").classList.toggle("active", !fokus);
+  $("#tabFokus").classList.toggle("active", fokus);
+}
+function setSidebarTab(tab) {
+  saveJSON("zeitblick.sidebarTab", tab);
+  applySidebarTab();
+}
+$("#tabAnsicht").addEventListener("click", () => setSidebarTab("ansicht"));
+$("#tabFokus").addEventListener("click", () => setSidebarTab("fokus"));
+applySidebarTab();
+
 /* ═══════════════ Fokus-Modus & Tagesziel ═══════════════ */
 
 let selectedFocusDuration = 25;
