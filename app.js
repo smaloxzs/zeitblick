@@ -1134,6 +1134,124 @@ function setColorMode(mode) {
 $("#colCat").addEventListener("click", () => setColorMode("kategorie"));
 $("#colApp").addEventListener("click", () => setColorMode("app"));
 
+/* ═══════════════ Fokus-Modus & Tagesziel ═══════════════ */
+
+let selectedFocusDuration = 25;
+let focusState = null;
+let goalInputFocused = false; // Eingabefeld nicht ueberschreiben, waehrend getippt wird
+
+async function apiFocusGet() {
+  try {
+    const res = await fetch(`/api/focus?t=${Date.now()}`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+async function apiFocusPost(path, body) {
+  try {
+    await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body || {}),
+    });
+  } catch { /* Tracker laeuft evtl. gerade nicht - Dashboard bleibt trotzdem nutzbar */ }
+}
+
+function fmtCountdown(totalSec) {
+  totalSec = Math.max(0, Math.round(totalSec));
+  const m = Math.floor(totalSec / 60), s = totalSec % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function renderFocus() {
+  if (!focusState) return;
+  const st = focusState;
+
+  $("#focusIdle").hidden = !!st.active;
+  $("#focusActive").hidden = !st.active;
+
+  document.querySelectorAll("#focusDurations .fchip").forEach(b => {
+    b.classList.toggle("active", Number(b.dataset.min) === selectedFocusDuration);
+  });
+
+  if (st.active) {
+    $("#focusModeLabel").textContent = st.mode === "break" ? "Pause läuft" : "Fokus läuft";
+    $("#focusTimeLeft").textContent = fmtCountdown(st.remaining_seconds ?? 0);
+  }
+
+  $("#focusNotifToggle").checked = st.notifications !== false;
+  $("#focusBlockToggle").checked = st.blocking !== false;
+  $("#focusBlockedWrap").hidden = st.blocking === false;
+
+  const chipsWrap = $("#focusBlockedChips");
+  chipsWrap.innerHTML = (st.blocked || []).map(kw => `
+    <span class="fchip blocked-chip" data-kw="${escapeHtml(kw)}">${escapeHtml(kw)}<span class="focus-chip-x">✕</span></span>
+  `).join("") || `<span class="side-hint">Noch keine Stichworte – füge unten welche hinzu.</span>`;
+  chipsWrap.querySelectorAll(".focus-chip-x").forEach(x => {
+    x.addEventListener("click", () => {
+      const kw = x.parentElement.dataset.kw;
+      const next = (focusState.blocked || []).filter(k => k !== kw);
+      apiFocusPost("/api/focus/settings", { blocked: next }).then(refreshFocus);
+    });
+  });
+
+  const goalHours = st.daily_goal_hours || 6;
+  if (!goalInputFocused) $("#goalHoursInput").value = goalHours;
+  const pct = st.goal_pct ?? 0;
+  $("#goalBarFill").style.width = Math.min(100, pct) + "%";
+  $("#goalLine").textContent = `${fmtDur(st.today_seconds || 0)} von ${goalHours} Std. · ${pct} %`;
+}
+
+async function refreshFocus() {
+  focusState = await apiFocusGet();
+  if (focusState) renderFocus();
+}
+
+document.querySelectorAll("#focusDurations .fchip").forEach(b => {
+  b.addEventListener("click", () => {
+    selectedFocusDuration = Number(b.dataset.min);
+    renderFocus();
+  });
+});
+
+$("#focusStartBtn").addEventListener("click", async () => {
+  await apiFocusPost("/api/focus/start", { duration_min: selectedFocusDuration });
+  refreshFocus();
+});
+$("#focusStopBtn").addEventListener("click", async () => {
+  await apiFocusPost("/api/focus/stop");
+  refreshFocus();
+});
+$("#focusNotifToggle").addEventListener("change", async e => {
+  await apiFocusPost("/api/focus/settings", { notifications: e.target.checked });
+  refreshFocus();
+});
+$("#focusBlockToggle").addEventListener("change", async e => {
+  await apiFocusPost("/api/focus/settings", { blocking: e.target.checked });
+  refreshFocus();
+});
+$("#focusAddBtn").addEventListener("click", addFocusKeyword);
+$("#focusAddInput").addEventListener("keydown", e => { if (e.key === "Enter") addFocusKeyword(); });
+async function addFocusKeyword() {
+  const input = $("#focusAddInput");
+  const kw = input.value.trim().toLowerCase();
+  if (!kw || !focusState) return;
+  const next = [...new Set([...(focusState.blocked || []), kw])];
+  input.value = "";
+  await apiFocusPost("/api/focus/settings", { blocked: next });
+  refreshFocus();
+}
+$("#goalHoursInput").addEventListener("focus", () => { goalInputFocused = true; });
+$("#goalHoursInput").addEventListener("blur", async e => {
+  goalInputFocused = false;
+  const val = parseFloat(e.target.value);
+  if (val > 0) await apiFocusPost("/api/focus/settings", { daily_goal_hours: val });
+  refreshFocus();
+});
+
+refreshFocus();
+setInterval(refreshFocus, 3000);
+
 /* Erststart */
 applyHourHeight();
 applyColorMode();

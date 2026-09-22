@@ -28,6 +28,58 @@
         <span class="status-text">Prüfe Tracker …</span>
       </div>
 
+      <div class="side-section focus-section" id="focusSection">
+        <div class="side-heading">Fokus-Modus</div>
+
+        <div id="focusIdle">
+          <div class="chip-row-app" id="focusDurations">
+            <button class="fchip" data-min="25">25 Min.</button>
+            <button class="fchip" data-min="45">45 Min.</button>
+            <button class="fchip" data-min="60">60 Min.</button>
+            <button class="fchip" data-min="90">90 Min.</button>
+          </div>
+          <button class="btn-focus-start" id="focusStartBtn">▶ Fokus starten</button>
+        </div>
+
+        <div id="focusActive" hidden>
+          <div class="focus-live">
+            <span class="focus-live-mode" id="focusModeLabel">Fokus läuft</span>
+            <span class="focus-live-time" id="focusTimeLeft">25:00</span>
+          </div>
+          <button class="btn-focus-stop" id="focusStopBtn">Sitzung beenden</button>
+        </div>
+
+        <label class="toggle-row">
+          <input type="checkbox" id="focusNotifToggle" checked>
+          <span>Benachrichtigung bei Ablenkung</span>
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="focusBlockToggle" checked>
+          <span>Ablenkende Fenster automatisch minimieren</span>
+        </label>
+
+        <div id="focusBlockedWrap">
+          <div class="side-heading focus-sub-heading">Blockierte Stichworte</div>
+          <div class="chip-row-app" id="focusBlockedChips"></div>
+          <div class="focus-add-row">
+            <input type="text" id="focusAddInput" placeholder="z. B. facebook">
+            <button id="focusAddBtn" title="Hinzufügen">+</button>
+          </div>
+        </div>
+        <p class="side-hint">Fenster, deren Name oder Titel eines dieser Stichworte enthält, werden während einer Fokus-Sitzung automatisch minimiert, inklusive kurzer Erinnerung mit Ausnahme-Option.</p>
+      </div>
+
+      <div class="side-section goal-section" id="goalSection">
+        <div class="side-heading">Tagesziel</div>
+        <div class="goal-bar-track"><div class="goal-bar-fill" id="goalBarFill" style="width:0%"></div></div>
+        <div class="goal-line" id="goalLine">– von – Std. getrackt</div>
+        <div class="goal-edit-row">
+          <span>Ziel:</span>
+          <input type="number" id="goalHoursInput" min="1" max="16" step="0.5" value="6">
+          <span>Std./Tag</span>
+        </div>
+      </div>
+
       <div class="side-section">
         <div class="side-heading">Farbe der Blöcke</div>
         <div class="color-switch">

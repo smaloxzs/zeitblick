@@ -115,13 +115,44 @@ Oben lässt sich zwischen zwei Ansichten umschalten (**Kalender / Statistik**):
   Detailgrad – nur die Kalender-Darstellung ändert sich.
 - Kategorien per Klick in der Legende ein-/ausblenden
 
+## Fokus-Modus (Pomodoro mit echter Ablenkungssperre)
+
+In der Seitenleiste, direkt unter dem Tracker-Status:
+
+- **Dauer wählen** (25 / 45 / 60 / 90 Min.) und **„Fokus starten“** klicken.
+  Ein Countdown läuft, bis die Zeit um ist – dann kommt automatisch eine
+  Desktop-Benachrichtigung mit „Pause starten (5 Min.)“ oder „Snoozen“,
+  danach optional gleich der nächste Fokus-Block.
+- **Blockierte Stichworte**: eine Liste von Programmen/Websites (z. B.
+  `youtube`, `tiktok`, `steam.exe`) – frei bearbeitbar per Chip-Liste unten in
+  der Seitenleiste. Taucht während einer aktiven Fokus-Sitzung eines dieser
+  Stichworte im Programmnamen oder Fenstertitel auf, wird das Fenster
+  **automatisch minimiert** und (wenn Benachrichtigungen an sind) eine kleine
+  Karte unten rechts eingeblendet: „Danke für die Erinnerung“, „Das ist keine
+  Ablenkung“ (erlaubt die Ausnahme für den Rest der Sitzung), „Fokus-Sitzung
+  beenden“ oder „Blocker für diese Sitzung deaktivieren“.
+- Die Benachrichtigungen laufen über **tkinter** (liegt Python bei, keine
+  Installation nötig) in einem eigenen Hintergrund-Thread – läuft der Tracker
+  unsichtbar per `pythonw`, erscheinen die Karten trotzdem ganz normal auf dem
+  Desktop, weil es echte native Fenster sind, kein Browser-Tab.
+- Ein Cooldown (45 Sek.) verhindert, dass dieselbe Seite mehrfach hintereinander
+  gemeldet wird, falls du sofort wieder hinwechselst.
+
+## Tagesziel
+
+Ebenfalls in der Seitenleiste: ein Fortschrittsbalken, wie viel du heute schon
+insgesamt getrackt hast im Vergleich zu einem selbst gesetzten Tagesziel
+(Standard 6 Std./Tag, änderbar). Bei 50 % und 100 % kommt einmalig eine kurze
+Erinnerungskarte.
+
 ## Technik
 
 | Teil | Beschreibung |
 |---|---|
-| `tracker.py` | Python (nur Standardbibliothek). Fragt alle 5 s per Win32-API das Vordergrundfenster ab, erkennt Leerlauf, schreibt Sessions als JSON und serviert gleichzeitig das Dashboard auf Port 8771. |
+| `tracker.py` | Python (nur Standardbibliothek). Fragt alle 5 s per Win32-API das Vordergrundfenster ab, erkennt Leerlauf, schreibt Sessions als JSON, prüft den Fokus-Modus (Ablenkungssperre + Timer), zeigt Desktop-Benachrichtigungen per tkinter und serviert gleichzeitig das Dashboard + eine kleine JSON-API (`/api/focus/...`) auf Port 8771. |
 | `data/JJJJ-MM-TT.json` | Eine Datei pro Tag: `{app, title, start, end}` pro Session. Deine Daten, einfach kopier-/löschbar. |
-| `index.html` / `style.css` / `app.js` | Dashboard, Vanilla JS ohne Abhängigkeiten. Kategorisierung passiert komplett im Frontend. |
+| `focus_state.json` | Laufzeit-Zustand des Fokus-Modus (aktiv/Dauer/Sperrliste/Tagesziel). Nicht in Git, ändert sich staendig. |
+| `index.html` / `style.css` / `app.js` | Dashboard, Vanilla JS ohne Abhängigkeiten. Kategorisierung passiert komplett im Frontend, Fokus-Modus-UI spricht mit der `/api/focus`-Schnittstelle in `tracker.py`. |
 | `categories.json` | Automatisch gelernte Zuordnungen (exe → Kategorie + Anzeigename), gepflegt von der täglichen Claude-Aufgabe. Nur ergänzen, nie nötig, sie von Hand zu pflegen. |
 
 Voraussetzung: Python 3.8+ (ist auf diesem PC vorhanden).

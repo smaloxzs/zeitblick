@@ -16,12 +16,13 @@ keine Cloud, keine Screenshots, kein Keylogging – liest nur Fenster-Metadaten
 ## Dateien
 | Datei | Zweck |
 |---|---|
-| `tracker.py` | Python (nur Stdlib). Pollt via Win32 alle 5 s das Vordergrundfenster, erkennt Leerlauf, schreibt `data/JJJJ-MM-TT.json`, serviert Dashboard auf Port **8771**. Einzel-Instanz über Windows-Mutex. |
-| `index.html` | Grundgerüst des Dashboards (Sidebar, Kalender, Statistik-Container). |
+| `tracker.py` | Python (nur Stdlib, inkl. tkinter). Pollt via Win32 alle 5 s das Vordergrundfenster, erkennt Leerlauf, schreibt `data/JJJJ-MM-TT.json`, prüft den Fokus-Modus (`check_focus`/`check_daily_goal`), zeigt Desktop-Toasts (`start_notification_ui`), serviert Dashboard + `/api/focus/*`-API auf Port **8771**. Einzel-Instanz über Windows-Mutex. |
+| `index.html` | Grundgerüst des Dashboards (Sidebar inkl. Fokus-Modus/Tagesziel, Kalender, Statistik-Container). |
 | `style.css` | Dunkles Rize-Design. |
-| `app.js` | Gesamte Dashboard-Logik: Laden, Kategorisieren, Kalender, Statistik, alle Umschalter. |
+| `app.js` | Gesamte Dashboard-Logik: Laden, Kategorisieren, Kalender, Statistik, alle Umschalter, Fokus-Modus-UI (spricht die `/api/focus`-Endpunkte an). |
 | `categories.json` | Automatisch gelernte App→Kategorie-Zuordnungen (von der geplanten Aufgabe gepflegt). |
 | `data/JJJJ-MM-TT.json` | Eine Datei pro Tag: `{app, title, start, end}` je Session. |
+| `focus_state.json` | Laufzeit-Zustand des Fokus-Modus (siehe unten). Nicht in Git (`.gitignore`), ändert sich zu häufig. |
 | `start-tracker.cmd` / `stop-tracker.cmd` | Tracker sichtbar starten / beenden. |
 | `install-autostart.cmd` / `uninstall-autostart.cmd` | Autostart (Verknüpfung in `shell:startup`, startet `pythonw tracker.py`) ein-/ausschalten. |
 | `Zeitblick.cmd` | Dashboard als App-Fenster (Edge/Chrome `--app`) öffnen, startet Tracker mit. |
@@ -92,6 +93,59 @@ kommunikation, soziale_medien, browsing, gaming, unterhaltung, windows, system`.
 - `periodDays()` / `periodLabel()` / `navigate(dir)` – Zeitraum-Logik.
 
 Alle Diagramme sind handgerolltes Inline-SVG, keine Bibliotheken.
+
+## Fokus-Modus (Rize-Feature-Nachbau: Pomodoro + Ablenkungssperre)
+
+**tracker.py-Seite** (Server + Erzwingung):
+- `FOCUS_DEFAULTS` / `load_focus()` / `save_focus()` – Zustand in `focus_state.json`
+  (Felder: `active`, `mode` "focus"/"break", `end_at` (ISO), `duration_min`,
+  `break_min`, `notifications`, `blocking`, `blocked` (Liste von Stichworten,
+  klein geschrieben, gegen `"<exe> <titel>"` per Substring geprüft – deckt
+  sowohl Programme `"steam.exe"` als auch Website-Schlüsselwörter `"youtube"` ab),
+  `session_allow` (Ausnahmen für die laufende Sitzung), `daily_goal_hours`).
+- `check_focus(tracker)` – wird in `tracking_loop` nach jedem `tracker.poll()`
+  aufgerufen. Prüft erst, ob `end_at` erreicht ist (→ Benachrichtigung in
+  `notify_queue`, `prompted`-Flag verhindert Spam), sonst bei aktivem
+  Fokus-Modus + `blocking=True`, ob `tracker.current` (das gerade aktive
+  Fenster) ein Stichwort trifft → `minimize_foreground()` (ctypes
+  `ShowWindow(hwnd, SW_MINIMIZE)`) + Benachrichtigung. `BLOCK_COOLDOWN=45s`
+  verhindert wiederholtes Minimieren derselben Ablenkung.
+- `check_daily_goal(tracker)` – meldet einmalig pro Tag bei 50 %/100 % des
+  `daily_goal_hours`-Ziels (verglichen mit `Tracker.today_total_seconds()` –
+  bewusst **gesamte** getrackte Zeit, nicht nur eine Kategorie, weil
+  Kategorisierung nur im Frontend existiert, nicht in Python).
+- `start_notification_ui()` – eigener Daemon-Thread, eigener `tkinter.Tk()`
+  mit `root.mainloop()`. Andere Threads legen Jobs in `notify_queue` (ein
+  normales `queue.Queue`, thread-safe); der Tk-Thread pollt sie per
+  `root.after(400, poll_queue)` und baut dann `Toplevel`-Kärtchen
+  (`overrideredirect`, unten rechts positioniert, dunkles Branding). **Wichtig:**
+  Tkinter-Objekte NIE aus einem anderen Thread anfassen – nur über die Queue
+  kommunizieren. Fällt der `tkinter`-Import weg, läuft der Tracker trotzdem
+  normal weiter (nur ohne Popups), siehe try/except in `start_notification_ui`.
+- `Handler.do_GET`/`do_POST` – `/api/focus` (GET, liefert Zustand +
+  `remaining_seconds`/`today_seconds`/`goal_seconds`/`goal_pct`),
+  `/api/focus/start` (POST `{duration_min}`), `/api/focus/stop` (POST),
+  `/api/focus/settings` (POST, beliebige Teilmenge von `notifications`,
+  `blocking`, `blocked`, `daily_goal_hours`, `duration_min`, `break_min`).
+  Alles andere faellt an `SimpleHTTPRequestHandler` durch (normales Datei-Serving
+  bleibt unangetastet).
+
+**app.js-Seite** (UI, Abschnitt „Fokus-Modus & Tagesziel“ ganz am Dateiende):
+- `refreshFocus()` pollt `/api/focus` alle 3 s, `renderFocus()` zeichnet Chips,
+  Countdown, Toggles, blockierte-Stichworte-Liste und die Tagesziel-Leiste.
+- Duration-Chips setzen nur `selectedFocusDuration` (lokal); erst „Fokus starten“
+  postet an `/api/focus/start`.
+- Stichworte hinzufügen/entfernen und Toggle-Änderungen gehen sofort per
+  `apiFocusPost("/api/focus/settings", …)` raus.
+
+**Testen ohne das echte Fenster zu minimieren:** `check_focus`/`check_daily_goal`
+sind reine Funktionen, die einen Tracker-artigen Wert (`.current`,
+`.today_total_seconds()`) entgegennehmen – lassen sich mit einem Fake-Objekt und
+gemocktem `tracker.minimize_foreground` isoliert testen (siehe Test vom
+2026-09-22 im Scratchpad, 16/16 Faelle bestanden). Beim Testen über die echte
+laufende Instanz IMMER erst `blocked: []` setzen, bevor per Klick/API eine
+Sitzung mit `blocking=true` gestartet wird, sonst kann das gerade echte
+Vordergrundfenster des Nutzers minimiert werden.
 
 ## Geplante Aufgabe (Auto-Kategorisierung)
 Task-ID `zeitblick-neue-apps-kategorisieren`, täglich 20:00. Liest die Daten der

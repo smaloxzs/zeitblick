@@ -3,5 +3,6 @@ data/
 
 # Laufzeit-/temporäre Dateien
 zeitblick.pid
+focus_state.json
 *.pyc
 __pycache__/
