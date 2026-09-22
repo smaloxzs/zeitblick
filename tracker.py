@@ -41,6 +41,7 @@ import subprocess
 import sys
 import threading
 import time
+import webbrowser
 from ctypes import wintypes
 from datetime import datetime, timedelta
 from functools import partial
@@ -661,7 +662,11 @@ def install_self():
     except OSError as exc:
         print("Registry-Eintrag fehlgeschlagen:", exc, file=sys.stderr)
 
-    subprocess.Popen([INSTALLED_EXE])
+    # --first-run: signalisiert der neu gestarteten Kopie, nach dem
+    # erfolgreichen Start automatisch das Dashboard im Browser zu oeffnen -
+    # ohne das saehe ein Nutzer nach dem Doppelklick (noconsole!) ueberhaupt
+    # keine Rueckmeldung und wuerde die App faelschlich fuer kaputt halten.
+    subprocess.Popen([INSTALLED_EXE, "--first-run"])
     return True
 
 
@@ -834,6 +839,14 @@ def main():
     with open(PID_FILE, "w", encoding="utf-8") as f:
         f.write(str(os.getpid()))
     atexit.register(lambda: os.path.exists(PID_FILE) and os.remove(PID_FILE))
+
+    if "--first-run" in sys.argv:
+        # Einzige sichtbare Rueckmeldung nach der stillen Installation
+        # (noconsole) - ohne das denkt man, der Doppelklick hat nichts getan.
+        try:
+            webbrowser.open(f"http://localhost:{PORT}")
+        except Exception:
+            pass
 
     prune_old_data()
     tracker = Tracker()
