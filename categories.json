@@ -1,6 +1,6 @@
 {
   "_info": "Automatisch gelernte App-Kategorien für Zeitblick. Diese Datei wird von der geplanten Claude-Aufgabe 'Zeitblick: neue Apps kategorisieren' gepflegt. Gültige Kategorien: produktiv, design, lernen, kommunikation, soziale_medien, browsing, gaming, unterhaltung, windows, system. Manuelle Zuordnungen im Dashboard (Dropdown) haben immer Vorrang vor dieser Datei.",
-  "updated": "2026-09-12",
+  "updated": "2026-09-20",
   "apps": {
     "searchapp.exe": { "cat": "windows", "name": "Windows-Suche" },
     "riot client.exe": { "cat": "gaming", "name": "Riot Client" },
@@ -9,6 +9,28 @@
     "whatsapp.root.exe": { "cat": "kommunikation", "name": "WhatsApp" },
     "amdsoftwareinstaller.exe": { "cat": "system", "name": "AMD Software Installer" },
     "whql-amd-software-adrenalin-edition-26.5.2-win11-may-vega-polaris.exe": { "cat": "system", "name": "AMD Treiber-Installation" },
-    "_unins.tmp": { "cat": "system", "name": "Deinstallations-Programm" }
+    "_unins.tmp": { "cat": "system", "name": "Deinstallations-Programm" },
+    "ds2.exe": { "cat": "gaming", "name": "Death Stranding 2" },
+    "onimushawots.exe": { "cat": "gaming", "name": "Onimusha: Way of the Sword" },
+    "ignite the depths.exe": { "cat": "gaming", "name": "Ignite the Depths" },
+    "credentialuibroker.exe": { "cat": "windows", "name": "Windows-Sicherheit" },
+    "flux.exe": { "cat": "system", "name": "f.lux" },
+    "handy.exe": { "cat": "produktiv", "name": "Handy (Diktier-Tool)" },
+    "amdsoftwareinstaller.exe.tmp": { "cat": "system", "name": "AMD Software Installer (temporär)" },
+    "bioshockinfinite.exe": { "cat": "gaming", "name": "BioShock Infinite" },
+    "chainedtogether-win64-shipping.exe": { "cat": "gaming", "name": "Chained Together" },
+    "csc_ui.exe": { "cat": "system", "name": "Cisco Secure Client (VPN)" },
+    "keepassxc.exe": { "cat": "produktiv", "name": "KeePassXC (Passwort-Manager)" },
+    "lifeisstrange.exe": { "cat": "gaming", "name": "Life is Strange" },
+    "lop-win64-shipping.exe": { "cat": "gaming", "name": "Lies of P" },
+    "msiexec.exe": { "cat": "windows", "name": "Windows-Installer" },
+    "pummelparty.exe": { "cat": "gaming", "name": "Pummel Party" },
+    "redlauncher.exe": { "cat": "gaming", "name": "REDlauncher (CD Projekt Red)" },
+    "skyrimlauncher.exe": { "cat": "gaming", "name": "Skyrim (Launcher)" },
+    "tesv.exe": { "cat": "gaming", "name": "Skyrim" },
+    "vpndownloader.exe": { "cat": "system", "name": "Cisco Secure Client (Downloader)" },
+    "witcher3.exe": { "cat": "gaming", "name": "The Witcher 3" },
+    "peak.exe": { "cat": "gaming", "name": "PEAK" },
+    "dispatch-win64-shipping.exe": { "cat": "gaming", "name": "Dispatch" }
   }
 }

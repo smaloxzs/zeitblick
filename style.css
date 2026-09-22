@@ -8,8 +8,10 @@
   --text: #e8eaf2;
   --muted: #8b93a7;
   --accent: #7c5cff;
+  --accent2: #4d7cfe;
   --danger: #ff5470;
   --radius: 10px;
+  --font-head: "Space Grotesk", system-ui, sans-serif;
   --hour-h: 96px; /* wird per JS aus der gespeicherten Zoomstufe gesetzt */
   --gutter-w: 56px;
 }
@@ -61,12 +63,12 @@ code {
 .logo-mark {
   width: 38px; height: 38px;
   display: grid; place-items: center;
-  background: linear-gradient(135deg, var(--accent), #4d7cfe);
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
   border-radius: 10px;
   font-size: 20px;
   color: #fff;
 }
-.logo-name { font-weight: 700; font-size: 17px; letter-spacing: .3px; }
+.logo-name { font-family: var(--font-head); font-weight: 700; font-size: 17px; letter-spacing: .2px; }
 .logo-sub { font-size: 11px; color: var(--muted); }
 
 .tracker-status {
@@ -116,7 +118,7 @@ code {
   gap: 2px;
   background: var(--panel-2);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 999px;
   padding: 3px;
 }
 .color-switch .seg2 {
@@ -126,7 +128,7 @@ code {
   color: var(--muted);
   font-size: 11.5px;
   padding: 6px 4px;
-  border-radius: 6px;
+  border-radius: 999px;
   cursor: pointer;
   transition: background .12s, color .12s;
 }
@@ -165,14 +167,14 @@ code {
 .btn {
   background: var(--panel-2);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px 14px;
+  border-radius: 999px;
+  padding: 6px 16px;
   cursor: pointer;
   font-size: 13px;
   transition: background .12s, border-color .12s;
 }
 .btn:hover { background: #232738; border-color: #363c52; }
-.icon-btn { padding: 6px 11px; font-size: 16px; line-height: 1; }
+.icon-btn { padding: 6px 11px; font-size: 16px; line-height: 1; border-radius: 50%; }
 
 .topbar h1 { font-size: 17px; font-weight: 600; }
 
@@ -191,7 +193,7 @@ code {
   gap: 2px;
   background: var(--panel-2);
   border: 1px solid var(--border);
-  border-radius: 9px;
+  border-radius: 999px;
   padding: 3px;
 }
 .view-switch .seg {
@@ -199,8 +201,8 @@ code {
   background: transparent;
   color: var(--muted);
   font-size: 13px;
-  padding: 5px 14px;
-  border-radius: 6px;
+  padding: 5px 16px;
+  border-radius: 999px;
   cursor: pointer;
   transition: background .12s, color .12s;
 }
@@ -221,7 +223,7 @@ code {
   gap: 3px;
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 999px;
   padding: 4px;
   margin-bottom: 16px;
 }
@@ -232,7 +234,7 @@ code {
   font-size: 13px;
   font-weight: 500;
   padding: 7px 20px;
-  border-radius: 7px;
+  border-radius: 999px;
   cursor: pointer;
   transition: background .12s, color .12s;
 }
