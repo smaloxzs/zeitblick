@@ -827,6 +827,13 @@ def main():
     if not acquire_singleton():
         print("Zeitblick laeuft bereits - diese Instanz beendet sich.")
         print(f"Dashboard: http://localhost:{PORT}")
+        # Jemand hat die App erneut geoeffnet (Desktop-/Startmenue-Icon), waehrend
+        # sie schon im Hintergrund lief - wie bei jeder normalen App soll das
+        # Klicken auf das Icon sichtbar etwas tun, also das Dashboard zeigen.
+        try:
+            webbrowser.open(f"http://localhost:{PORT}")
+        except Exception:
+            pass
         return
 
     try:
