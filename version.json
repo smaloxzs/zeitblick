@@ -1,6 +1,6 @@
 {
   "_info": "Wird von Zeitblick beim Start abgefragt (tracker.py: check_for_update), um zu pruefen, ob eine neuere Version verfuegbar ist. Bei einem neuen Release hier die Version + einen echten download_url aktualisieren und nach main pushen.",
-  "version": "1.1.0",
-  "download_url": "https://github.com/smaloxzs/zeitblick/releases/download/v1.1.0/Zeitblick.exe",
-  "notes": "Fokus-Modus (Pomodoro mit Ablenkungssperre), Tagesziel, Englisch/Deutsch."
+  "version": "1.1.1",
+  "download_url": "https://github.com/smaloxzs/zeitblick/releases/download/v1.1.1/Zeitblick.exe",
+  "notes": "Fix: Installation/Update zeigt jetzt zuverlaessig das Dashboard und ersetzt eine noch laufende alte Version korrekt."
 }
