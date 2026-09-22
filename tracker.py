@@ -700,8 +700,11 @@ def uninstall_self():
         pass
 
     # Sich selbst + Ordner loeschen, nachdem dieser Prozess beendet ist.
+    # "timeout" braucht eine echte Konsole und schlaegt in einem
+    # losgeloesten Hintergrundprozess fehl - "ping" als Wartetrick
+    # funktioniert dagegen ueberall zuverlaessig.
     subprocess.Popen(
-        f'cmd /c timeout /t 2 >nul & rmdir /s /q "{APP_DIR}"',
+        f'cmd /c ping -n 3 127.0.0.1 >nul & rmdir /s /q "{APP_DIR}"',
         shell=True, creationflags=subprocess.CREATE_NO_WINDOW,
     )
 
