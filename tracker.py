@@ -23,6 +23,13 @@ Als App oeffnen:     Zeitblick.cmd
 Stop:                stop-tracker.cmd
 
 Daten liegen als JSON pro Tag in  data/JJJJ-MM-TT.json
+
+Als gebaute .exe (siehe build_exe.py) läuft Zeitblick zusätzlich als
+selbstinstallierendes Programm: erster Start kopiert sich selbst nach
+%LOCALAPPDATA%\\Zeitblick, legt Verknüpfungen an, trägt Autostart + einen
+Eintrag unter "Apps & Features" ein. `--uninstall` macht alles rückgängig.
+Im normalen Skript-Betrieb (dieser Datei direkt mit `python`/`pythonw`
+gestartet) ändert sich am bisherigen Verhalten nichts.
 """
 
 import atexit
@@ -30,6 +37,7 @@ import ctypes
 import json
 import os
 import queue
+import subprocess
 import sys
 import threading
 import time
@@ -38,10 +46,36 @@ from datetime import datetime, timedelta
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "data")
-PID_FILE = os.path.join(BASE_DIR, "zeitblick.pid")
-FOCUS_FILE = os.path.join(BASE_DIR, "focus_state.json")
+VERSION = "1.1.0"
+VERSION_URL = "https://raw.githubusercontent.com/smaloxzs/zeitblick/main/version.json"
+APP_NAME = "Zeitblick"
+UNINSTALL_KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\Zeitblick"
+RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
+
+
+def is_frozen():
+    return bool(getattr(sys, "frozen", False))
+
+
+if is_frozen():
+    # Gebaute .exe (PyInstaller --onefile): der Prozess laeuft aus einem
+    # temporaeren Extraktionsordner, der bei jedem Start neu angelegt wird.
+    # Persistente Daten muessen deshalb woanders liegen, sonst wuerden sie
+    # bei jedem Neustart der App verloren gehen.
+    ASSETS_DIR = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+    APP_DIR = os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")), APP_NAME)
+    INSTALLED_EXE = os.path.join(APP_DIR, "Zeitblick.exe")
+else:
+    # Normaler Skript-Betrieb (wie bisher, z. B. bei Marlon per pythonw
+    # gestartet): alles bleibt nebeneinander im Projektordner, unveraendert.
+    ASSETS_DIR = os.path.dirname(os.path.abspath(__file__))
+    APP_DIR = ASSETS_DIR
+    INSTALLED_EXE = None
+
+BASE_DIR = ASSETS_DIR  # dient dem Webserver: index.html/app.js/style.css liegen hier
+DATA_DIR = os.path.join(APP_DIR, "data")
+PID_FILE = os.path.join(APP_DIR, "zeitblick.pid")
+FOCUS_FILE = os.path.join(APP_DIR, "focus_state.json")
 
 PORT = 8771
 POLL_INTERVAL = 5        # Sekunden zwischen zwei Messungen
@@ -492,11 +526,24 @@ def start_notification_ui():
         text = "Tagesziel erreicht! Starker Tag." if pct >= 100 else "Du bist auf halbem Weg zu deinem Tagesziel."
         make_toast("ZEITBLICK · TAGESZIEL", f"{pct} % erreicht", text, [("Ok", lambda: None, True)])
 
+    def handle_update(job):
+        version = job.get("version", "")
+        url = job.get("url") or "https://github.com/smaloxzs/zeitblick"
+        def open_download():
+            import webbrowser
+            webbrowser.open(url)
+        make_toast(
+            "ZEITBLICK · UPDATE", f"Version {version} ist verfügbar",
+            "Du nutzt gerade eine ältere Version von Zeitblick.",
+            [("Update herunterladen", open_download, True), ("Später erinnern", lambda: None, False)],
+        )
+
     handlers = {
         "distraction": handle_distraction,
         "break_ready": handle_break_ready,
         "break_over": handle_break_over,
         "goal": handle_goal,
+        "update": handle_update,
     }
 
     def poll_queue():
@@ -539,6 +586,124 @@ def prune_old_data():
                 os.remove(os.path.join(DATA_DIR, name))
             except OSError:
                 pass
+
+
+def _version_tuple(v):
+    return tuple(int(p) if p.isdigit() else 0 for p in str(v).split("."))
+
+
+def check_for_update():
+    """Einmaliger, stiller Update-Check beim Start. Meldet nur per Kaertchen,
+    wenn eine neuere Version vorliegt - ersetzt nichts automatisch und
+    blockiert nichts, falls kein Internet da ist."""
+    try:
+        import urllib.request
+        with urllib.request.urlopen(VERSION_URL, timeout=4) as resp:
+            info = json.loads(resp.read().decode("utf-8"))
+        remote = info.get("version", "")
+        if remote and _version_tuple(remote) > _version_tuple(VERSION):
+            notify_queue.put({"type": "update", "version": remote,
+                               "url": info.get("download_url", "")})
+    except Exception:
+        pass  # kein Internet / Datei nicht erreichbar -> einfach weiterlaufen
+
+
+def _run_hidden_powershell(cmd):
+    subprocess.run(
+        ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden", "-Command", cmd],
+        creationflags=subprocess.CREATE_NO_WINDOW, check=False,
+    )
+
+
+def _create_shortcut(link_path, target, workdir, icon=None):
+    icon_line = f"$s.IconLocation='{icon}'; " if icon else ""
+    cmd = (
+        f"$s=(New-Object -ComObject WScript.Shell).CreateShortcut('{link_path}'); "
+        f"$s.TargetPath='{target}'; $s.WorkingDirectory='{workdir}'; {icon_line}"
+        f"$s.WindowStyle=7; $s.Save()"
+    )
+    _run_hidden_powershell(cmd)
+
+
+def install_self():
+    """Nur relevant fuer die gebaute .exe: kopiert sich selbst nach
+    %LOCALAPPDATA%\\Zeitblick, legt Desktop-/Startmenue-Verknuepfung an,
+    traegt Autostart (Registry Run-Key) sowie einen Eintrag unter
+    "Apps & Features" ein, und startet sich von dort neu. Laeuft nur beim
+    allerersten Start (z. B. direkt aus dem Downloads-Ordner)."""
+    import shutil
+    import winreg
+
+    os.makedirs(APP_DIR, exist_ok=True)
+    try:
+        if os.path.abspath(sys.executable) != os.path.abspath(INSTALLED_EXE):
+            shutil.copy2(sys.executable, INSTALLED_EXE)
+    except OSError as exc:
+        print("Installation fehlgeschlagen:", exc, file=sys.stderr)
+        return False
+
+    desktop = os.path.join(os.path.expanduser("~"), "Desktop")
+    start_menu = os.path.join(os.environ.get("APPDATA", ""), "Microsoft", "Windows", "Start Menu", "Programs")
+    _create_shortcut(os.path.join(desktop, "Zeitblick.lnk"), INSTALLED_EXE, APP_DIR)
+    _create_shortcut(os.path.join(start_menu, "Zeitblick.lnk"), INSTALLED_EXE, APP_DIR)
+
+    try:
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, RUN_KEY) as k:
+            winreg.SetValueEx(k, APP_NAME, 0, winreg.REG_SZ, f'"{INSTALLED_EXE}"')
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, UNINSTALL_KEY) as k:
+            winreg.SetValueEx(k, "DisplayName", 0, winreg.REG_SZ, "Zeitblick")
+            winreg.SetValueEx(k, "DisplayVersion", 0, winreg.REG_SZ, VERSION)
+            winreg.SetValueEx(k, "Publisher", 0, winreg.REG_SZ, "Marlon Pilz")
+            winreg.SetValueEx(k, "UninstallString", 0, winreg.REG_SZ, f'"{INSTALLED_EXE}" --uninstall')
+            winreg.SetValueEx(k, "InstallLocation", 0, winreg.REG_SZ, APP_DIR)
+            winreg.SetValueEx(k, "NoModify", 0, winreg.REG_DWORD, 1)
+            winreg.SetValueEx(k, "NoRepair", 0, winreg.REG_DWORD, 1)
+    except OSError as exc:
+        print("Registry-Eintrag fehlgeschlagen:", exc, file=sys.stderr)
+
+    subprocess.Popen([INSTALLED_EXE])
+    return True
+
+
+def uninstall_self():
+    """Gegenstueck zu install_self(): beendet einen laufenden Tracker,
+    entfernt Verknuepfungen, Autostart- und Uninstall-Registry-Eintrag, und
+    loescht zuletzt die eigene .exe samt Ordner (ueber ein kurz verzoegertes,
+    von diesem Prozess losgeloestes Kommando, da eine laufende .exe sich
+    unter Windows nicht selbst loeschen kann)."""
+    import winreg
+
+    if os.path.exists(PID_FILE):
+        try:
+            with open(PID_FILE, "r", encoding="utf-8") as f:
+                pid = f.read().strip()
+            subprocess.run(["taskkill", "/PID", pid, "/F"], creationflags=subprocess.CREATE_NO_WINDOW, check=False)
+        except (OSError, ValueError):
+            pass
+
+    desktop = os.path.join(os.path.expanduser("~"), "Desktop", "Zeitblick.lnk")
+    start_menu = os.path.join(os.environ.get("APPDATA", ""), "Microsoft", "Windows", "Start Menu", "Programs", "Zeitblick.lnk")
+    for path in (desktop, start_menu):
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+
+    try:
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, RUN_KEY, 0, winreg.KEY_SET_VALUE) as k:
+            winreg.DeleteValue(k, APP_NAME)
+    except OSError:
+        pass
+    try:
+        winreg.DeleteKey(winreg.HKEY_CURRENT_USER, UNINSTALL_KEY)
+    except OSError:
+        pass
+
+    # Sich selbst + Ordner loeschen, nachdem dieser Prozess beendet ist.
+    subprocess.Popen(
+        f'cmd /c timeout /t 2 >nul & rmdir /s /q "{APP_DIR}"',
+        shell=True, creationflags=subprocess.CREATE_NO_WINDOW,
+    )
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -637,6 +802,20 @@ def main():
     if os.name != "nt":
         sys.exit("Zeitblick laeuft nur unter Windows.")
 
+    if "--uninstall" in sys.argv:
+        uninstall_self()
+        return
+
+    skip_install = "--no-install" in sys.argv  # nur zum Testen/Debuggen der gebauten .exe
+    if is_frozen() and not skip_install and os.path.abspath(sys.executable) != os.path.abspath(INSTALLED_EXE):
+        # Erststart einer gerade heruntergeladenen .exe (z. B. aus "Downloads"):
+        # an den festen Ort installieren und von dort neu starten. Kehrt bei
+        # Erfolg nicht in diesen Prozess zurueck.
+        if install_self():
+            return
+
+    os.makedirs(APP_DIR, exist_ok=True)
+
     if not acquire_singleton():
         print("Zeitblick laeuft bereits - diese Instanz beendet sich.")
         print(f"Dashboard: http://localhost:{PORT}")
@@ -660,8 +839,9 @@ def main():
     atexit.register(tracker.flush)
     threading.Thread(target=tracking_loop, args=(tracker,), daemon=True).start()
     threading.Thread(target=start_notification_ui, daemon=True).start()
+    threading.Thread(target=check_for_update, daemon=True).start()
 
-    print("Zeitblick laeuft.")
+    print(f"Zeitblick {VERSION} laeuft.")
     print(f"  Dashboard:  http://localhost:{PORT}")
     print(f"  Daten:      {DATA_DIR}")
     print("  Beenden:    stop-tracker.cmd oder Strg+C")

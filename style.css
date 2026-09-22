@@ -95,6 +95,32 @@ code {
   margin-bottom: 10px;
 }
 
+/* ── Sprachumschalter (DE/EN) ── */
+
+.lang-switch {
+  display: flex;
+  gap: 2px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
+  width: fit-content;
+  margin-left: auto;
+}
+.lang-switch .lseg {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.lang-switch .lseg:hover { color: var(--text); }
+.lang-switch .lseg.active { background: var(--accent); color: #fff; }
+
 /* ── Umschalter „Ansicht“ / „Fokus-Modus“ (Seitenleiste) ── */
 
 .sidebar-tabs {

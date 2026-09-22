@@ -1,5 +1,8 @@
 # Zeitblick – lokaler Aktivitäts-Tracker (Rize-Nachbau)
 
+**Sprache:** Das Dashboard gibt es komplett auf Deutsch und Englisch – oben in
+der Seitenleiste per DE/EN-Umschalter wechselbar, wird gemerkt.
+
 Zeitblick trackt automatisch, welche Programme du an deinem Windows-PC benutzt,
 und zeigt sie – wie bei [Rize](https://rize.io) – in einem Wochenkalender im
 Google-Kalender-Stil an, farblich sortiert nach Kategorien (Produktivität,
@@ -11,6 +14,10 @@ Screenshots, kein Keylogging. Wie bei Rize werden nur Fenster-Metadaten
 gelesen – Programmname und Fenstertitel.
 
 ## Starten & Autostart
+
+Es gibt zwei Wege, Zeitblick zu betreiben – **für dieses Projekt hier (aus dem
+Quellcode, mit Python)** die Skripte unten, **für alle anderen (Download ohne
+Python)** die fertige `Zeitblick.exe`, siehe [„Als fertige .exe weitergeben“](#als-fertige-exe-weitergeben).
 
 Die Skripte im Ordner (Doppelklick):
 
@@ -28,6 +35,38 @@ Danach läuft der Tracker für immer im Hintergrund, auch nach jedem Neustart.
 Zum Anschauen: das **Zeitblick-Icon auf dem Desktop** doppelklicken (falls es
 fehlt, einmal `create-desktop-icon.cmd` ausführen). Oben links im Dashboard
 zeigt ein grüner Punkt „Tracker läuft – Daten sind live“, ob gerade getrackt wird.
+
+## Als fertige .exe weitergeben (kein Python nötig)
+
+Für andere Rechner/Nutzer lässt sich Zeitblick als **eine einzige, sich selbst
+installierende `Zeitblick.exe`** bauen:
+
+```
+pip install pyinstaller
+python build_exe.py
+```
+
+Ergebnis: `dist/Zeitblick.exe` (~9 MB), enthält Python und alle Dashboard-Dateien.
+
+**Was beim ersten Doppelklick passiert** – ganz ohne Installations-Assistent:
+1. Kopiert sich selbst nach `%LOCALAPPDATA%\Zeitblick\Zeitblick.exe`.
+2. Legt eine Verknüpfung auf dem Desktop und im Startmenü an.
+3. Trägt sich in die Windows-Autostart-Liste ein (Registry, `HKCU`).
+4. Erstellt einen Eintrag unter **Einstellungen → Apps → Installierte Apps**,
+   über den sich Zeitblick regulär deinstallieren lässt.
+5. Startet sich von dort neu – die ursprünglich heruntergeladene Datei
+   (z. B. im Downloads-Ordner) kann man danach löschen.
+
+Beim Start wird außerdem einmal still geprüft, ob unter [`version.json`](version.json)
+im Repo eine neuere Version verfügbar ist; falls ja, erscheint ein kleiner
+Hinweis mit einem Link zum Herunterladen (kein automatisches Selbst-Ersetzen –
+das ist bewusst so gewählt, damit nie unbemerkt etwas im Hintergrund
+ausgetauscht wird).
+
+Wichtig: Diese gebaute `Zeitblick.exe` läuft **komplett getrennt** von einer
+per `python`/`pythonw` aus diesem Ordner gestarteten Instanz (eigener
+Datenordner in `%LOCALAPPDATA%`) – ein Test der `.exe` verändert nie die
+Tracking-Daten in `data/` hier im Projekt.
 
 ### Wie der Autostart funktioniert
 

@@ -9,19 +9,130 @@ const ABSORB_2MIN = 120;         // Detailgrad "< 2 Min.": kürzere Wechsel werd
 const DETAIL_MIN = 5;            // "Genau": alles ab so vielen Sek. anzeigen
 const REFRESH_MS = 30000;        // Auto-Aktualisierung
 
+/* ── Sprache (DE/EN) ── */
+const I18N = {
+  de: {
+    trackerLive: "Tracker läuft – Daten sind live", trackerOff: "Tracker ist nicht aktiv",
+    appSub: "Aktivitäts-Tracker", loadingData: "Lade Daten …", checkingTracker: "Prüfe Tracker …",
+    tabAnsicht: "Ansicht", tabFokus: "Fokus-Modus",
+    blockColor: "Farbe der Blöcke", byCategory: "nach Kategorie", byApp: "nach Programm",
+    byAppHint: "„nach Programm“ gibt jedem Spiel, Programm und jeder Website eine eigene Farbe.",
+    categories: "Kategorien",
+    categoriesHint: "Klicken, um eine Kategorie im Kalender aus- bzw. einzublenden.",
+    detailLevel: "Detailgrad", detail1: "< 1 Min.", detail2: "< 2 Min.", detailExact: "Genau",
+    detail1Title: "Weg-Klicks unter 1 Minute zusammenfassen", detail2Title: "Weg-Klicks unter 2 Minuten zusammenfassen",
+    detailExactTitle: "Jede Aktivität einzeln zeigen",
+    detailHint: "„Zusammengefasst“ schluckt kurze Weg-Klicks in die laufende Tätigkeit – z. B. bleibt Valorant ein Block, auch wenn du zwischendurch kurz wegtabst. Wähle, ob Wechsel unter 1 oder unter 2 Minuten geschluckt werden. „Genau“ zeigt jede Aktivität ab 5 Sek. einzeln.",
+    trackerStart: "Tracker starten",
+    trackerStartHint: "Doppelklick auf <code>start-tracker.cmd</code> im Projektordner – läuft dann unsichtbar im Hintergrund.",
+    today: "Heute", calendar: "Kalender", statistics: "Statistik",
+    prevWeek: "Vorherige Woche", nextWeek: "Nächste Woche",
+    zoomOut: "Herauszoomen", zoomIn: "Hineinzoomen (genauere Zeitansicht)",
+    weekTotalLabel: { tag: "Tag gesamt", woche: "Woche gesamt", monat: "Monat gesamt" },
+    noDataPeriod: "Noch keine Daten in diesem Zeitraum",
+    day: "Tag", week: "Woche", month: "Monat",
+    activityPerHour: "Aktivität pro Stunde", activityPerDay: "Aktivität pro Tag",
+    activityPerDayMonth: "Aktivität pro Tag im Monat", clickBarForDay: "Balken anklicken für den Tag →",
+    topAppsDay: "Top-Programme & Websites am Tag", topAppsMonth: "Top-Programme & Websites im Monat",
+    topAppsWeek: "Top-Programme & Websites der Woche",
+    byDuration: "nach Dauer", byFrequency: "nach Häufigkeit",
+    categoriesDetail: "Kategorien im Detail – welche Programme & Websites stecken dahinter",
+    distribution: "Verteilung",
+    noDataYet: "Keine Daten in diesem Zeitraum – sobald der Tracker läuft, erscheinen hier Diagramme und Auswertungen.",
+    inBrowser: "Im Browser – wofür du den Browser nutzt", total: "gesamt",
+    topSites: "Meistbesuchte Websites & Seiten", tracked: "getrackt", topApps: "Top-Programme & Websites",
+    entries: "Einträge", activities: "Aktivitäten", websites: "Websites",
+    appsAndSites: "Programme & Websites",
+    ofWhichWebsites: n => `davon ${n} Websites`,
+    noActivity: "Keine Aktivität aufgezeichnet.",
+    autoAppearHint: "Sobald der Tracker läuft (<code>start-tracker.cmd</code>), erscheinen hier automatisch deine Aktivitäten.",
+    usedTimes: "× benutzt", changeCategory: "Kategorie ändern",
+    newBadgeTitle: "Wird bei der nächsten automatischen Prüfung von Claude kategorisiert",
+    webNote: "🌐 = Website (im Browser erkannt). Jedes Programm <b>und jede Website</b> lässt sich über das Dropdown in eine Kategorie einsortieren – wird lokal gespeichert und sofort überall angewendet.",
+    activeDaysOfN: (a, b) => `${a} von ${b} Tagen aktiv`, avgPerActiveDay: n => `Ø ${n} pro aktivem Tag`,
+    focusMode: "Fokus-Modus", startFocus: "▶ Fokus starten", endSession: "Sitzung beenden",
+    focusRunning: "Fokus läuft", breakRunning: "Pause läuft",
+    notifyOnDistraction: "Benachrichtigung bei Ablenkung",
+    autoMinimize: "Ablenkende Fenster automatisch minimieren",
+    blockedKeywords: "Blockierte Stichworte", addKeywordPlaceholder: "z. B. facebook",
+    focusHint: "Fenster, deren Name oder Titel eines dieser Stichworte enthält, werden während einer Fokus-Sitzung automatisch minimiert, inklusive kurzer Erinnerung mit Ausnahme-Option.",
+    noKeywordsYet: "Noch keine Stichworte – füge unten welche hinzu.",
+    dailyGoal: "Tagesziel", goalLine: (t, g, p) => `${t} von ${g} Std. · ${p} %`,
+    goalLabel: "Ziel:", perDay: "Std./Tag",
+    min: "Min.", sec: "Sek.", h: "Std.", used: "genutzt", uhr: "Uhr",
+  },
+  en: {
+    trackerLive: "Tracker running – data is live", trackerOff: "Tracker is not active",
+    appSub: "Activity Tracker", loadingData: "Loading data …", checkingTracker: "Checking tracker …",
+    tabAnsicht: "View", tabFokus: "Focus Mode",
+    blockColor: "Block color", byCategory: "by category", byApp: "by program",
+    byAppHint: "“By program” gives every game, program and website its own color.",
+    categories: "Categories",
+    categoriesHint: "Click to show or hide a category on the calendar.",
+    detailLevel: "Detail level", detail1: "< 1 min", detail2: "< 2 min", detailExact: "Exact",
+    detail1Title: "Absorb switches under 1 minute", detail2Title: "Absorb switches under 2 minutes",
+    detailExactTitle: "Show every activity individually",
+    detailHint: "“Grouped” absorbs short switches into the current activity – e.g. Valorant stays one block even if you briefly tab away. Choose whether switches under 1 or under 2 minutes get absorbed. “Exact” shows every activity from 5 sec. individually.",
+    trackerStart: "Start tracker",
+    trackerStartHint: "Double-click <code>start-tracker.cmd</code> in the project folder – runs invisibly in the background from then on.",
+    today: "Today", calendar: "Calendar", statistics: "Statistics",
+    prevWeek: "Previous week", nextWeek: "Next week",
+    zoomOut: "Zoom out", zoomIn: "Zoom in (more detailed timeline)",
+    weekTotalLabel: { tag: "Day total", woche: "Week total", monat: "Month total" },
+    noDataPeriod: "No data yet for this period",
+    day: "Day", week: "Week", month: "Month",
+    activityPerHour: "Activity per hour", activityPerDay: "Activity per day",
+    activityPerDayMonth: "Activity per day this month", clickBarForDay: "Click a bar for that day →",
+    topAppsDay: "Top apps & websites today", topAppsMonth: "Top apps & websites this month",
+    topAppsWeek: "Top apps & websites this week",
+    byDuration: "by duration", byFrequency: "by frequency",
+    categoriesDetail: "Categories in detail – which apps & websites make them up",
+    distribution: "Distribution",
+    noDataYet: "No data for this period yet – once the tracker runs, charts and stats will appear here.",
+    inBrowser: "In the browser – what you use it for", total: "total",
+    topSites: "Most visited websites & pages", tracked: "tracked", topApps: "Top apps & websites",
+    entries: "entries", activities: "activities", websites: "websites",
+    appsAndSites: "apps & websites",
+    ofWhichWebsites: n => `${n} of them websites`,
+    noActivity: "No activity recorded.",
+    autoAppearHint: "Once the tracker is running (<code>start-tracker.cmd</code>), your activity will appear here automatically.",
+    usedTimes: "× used", changeCategory: "Change category",
+    newBadgeTitle: "Will be categorized during Claude's next automatic check",
+    webNote: "🌐 = website (detected in the browser). Every program <b>and every website</b> can be sorted into a category via the dropdown – saved locally and applied everywhere immediately.",
+    activeDaysOfN: (a, b) => `${a} of ${b} days active`, avgPerActiveDay: n => `Avg. ${n} per active day`,
+    focusMode: "Focus Mode", startFocus: "▶ Start focus", endSession: "End session",
+    focusRunning: "Focus running", breakRunning: "Break running",
+    notifyOnDistraction: "Notify on distraction",
+    autoMinimize: "Auto-minimize distracting windows",
+    blockedKeywords: "Blocked keywords", addKeywordPlaceholder: "e.g. facebook",
+    focusHint: "Any window whose name or title contains one of these keywords is automatically minimized during a focus session, with a short reminder and an exception option.",
+    noKeywordsYet: "No keywords yet – add some below.",
+    dailyGoal: "Daily goal", goalLine: (t, g, p) => `${t} of ${g}h · ${p}%`,
+    goalLabel: "Goal:", perDay: "h/day",
+    min: "min", sec: "s", h: "h", used: "used", uhr: "",
+  },
+};
+function t(key) { return I18N[state.lang][key]; }
+function tf(key, ...args) { return I18N[state.lang][key](...args); }
+function locale() { return state.lang === "en" ? "en-US" : "de-DE"; }
+
 /* ── Kategorien (Farben + Namen) ── */
 const CATEGORIES = {
-  produktiv:      { name: "Produktivität",   color: "#4d7cfe" },
-  design:         { name: "Design & Kreativ", color: "#8b5cf6" },
-  lernen:         { name: "Lernen",          color: "#06b6d4" },
-  kommunikation:  { name: "Kommunikation",   color: "#22c55e" },
-  soziale_medien: { name: "Soziale Medien",  color: "#ec4899" },
-  browsing:       { name: "Browsing",        color: "#f59e0b" },
-  gaming:         { name: "Gaming",          color: "#ef4444" },
-  unterhaltung:   { name: "Unterhaltung",    color: "#a855f7" },
-  windows:        { name: "Windows",         color: "#7891ab" },
-  system:         { name: "Sonstiges",       color: "#565b6b" },
+  produktiv:      { name: "Produktivität",   nameEn: "Productivity",     color: "#4d7cfe" },
+  design:         { name: "Design & Kreativ", nameEn: "Design & Creative", color: "#8b5cf6" },
+  lernen:         { name: "Lernen",          nameEn: "Learning",         color: "#06b6d4" },
+  kommunikation:  { name: "Kommunikation",   nameEn: "Communication",    color: "#22c55e" },
+  soziale_medien: { name: "Soziale Medien",  nameEn: "Social Media",     color: "#ec4899" },
+  browsing:       { name: "Browsing",        nameEn: "Browsing",         color: "#f59e0b" },
+  gaming:         { name: "Gaming",          nameEn: "Gaming",           color: "#ef4444" },
+  unterhaltung:   { name: "Unterhaltung",    nameEn: "Entertainment",    color: "#a855f7" },
+  windows:        { name: "Windows",         nameEn: "Windows",          color: "#7891ab" },
+  system:         { name: "Sonstiges",       nameEn: "Other",            color: "#565b6b" },
 };
+function catName(key) {
+  const c = CATEGORIES[key];
+  return state.lang === "en" ? c.nameEn : c.name;
+}
 
 const BROWSERS = new Set([
   "chrome.exe", "firefox.exe", "msedge.exe", "opera.exe", "opera_gx.exe",
@@ -134,6 +245,7 @@ const state = {
   statsPeriod: loadJSON("zeitblick.statsPeriod", "woche"), // "tag" | "woche" | "monat"
   appSort: loadJSON("zeitblick.appSort", "dur"),  // "dur" | "bursts"
   colorMode: loadJSON("zeitblick.colorMode", "kategorie"), // "kategorie" | "app"
+  lang: loadJSON("zeitblick.lang", "de"), // "de" | "en"
 };
 
 /* Palette klar unterscheidbarer Farben für den Programm-Modus */
@@ -222,25 +334,26 @@ function periodDays() {
 }
 function periodLabel() {
   if (state.view === "statistik" && state.statsPeriod === "tag")
-    return currentAnchor().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
+    return currentAnchor().toLocaleDateString(locale(), { weekday: "long", day: "numeric", month: "long" });
   if (state.view === "statistik" && state.statsPeriod === "monat")
-    return currentAnchor().toLocaleDateString("de-DE", { month: "long", year: "numeric" });
+    return currentAnchor().toLocaleDateString(locale(), { month: "long", year: "numeric" });
   const a = weekDays()[0], b = weekDays()[6], o = { day: "numeric", month: "short" };
-  return `${a.toLocaleDateString("de-DE", o)} – ${b.toLocaleDateString("de-DE", { ...o, year: "numeric" })}`;
+  return `${a.toLocaleDateString(locale(), o)} – ${b.toLocaleDateString(locale(), { ...o, year: "numeric" })}`;
 }
 
 function fmtDur(sec) {
   sec = Math.round(sec);
-  if (sec < 60) return `${sec} Sek.`;
+  if (sec < 60) return `${sec} ${t("sec")}`;
   const h = Math.floor(sec / 3600), m = Math.round((sec % 3600) / 60);
-  if (h === 0) return `${m} Min.`;
-  return m === 0 ? `${h} Std.` : `${h} Std. ${m} Min.`;
+  if (h === 0) return `${m} ${t("min")}`;
+  return m === 0 ? `${h} ${t("h")}` : `${h} ${t("h")} ${m} ${t("min")}`;
 }
 function fmtClock(d) {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 function fmtShort(sec) {
-  if (sec >= 3600) return (sec / 3600).toFixed(1).replace(".", ",") + " h";
+  const dec = state.lang === "en" ? "." : ",";
+  if (sec >= 3600) return (sec / 3600).toFixed(1).replace(".", dec) + " h";
   if (sec >= 60) return Math.round(sec / 60) + " min";
   return Math.round(sec) + " s";
 }
@@ -289,7 +402,7 @@ function catRowHTML(cat, sec, total) {
   return `
     <div class="cat-row">
       <span class="legend-dot" style="background:${CATEGORIES[cat].color}"></span>
-      <span class="cr-name">${CATEGORIES[cat].name}</span>
+      <span class="cr-name">${catName(cat)}</span>
       <span class="cr-time">${fmtDur(sec)}</span>
       <span class="cr-pct">${Math.round(sec / total * 100)} %</span>
     </div>`;
@@ -541,11 +654,10 @@ function renderTopbar() {
   const days = periodDays();
   let total = 0;
   for (const d of days) for (const s of (state.days[isoDate(d)] || [])) total += s.dur;
-  const wort = state.view === "statistik"
-    ? (state.statsPeriod === "tag" ? "Tag" : state.statsPeriod === "monat" ? "Monat" : "Woche")
-    : "Woche";
+  const key = state.view === "statistik" ? state.statsPeriod : "woche";
+  const label = t("weekTotalLabel")[key] || t("weekTotalLabel").woche;
   $("#weekTotal").innerHTML = total > 0
-    ? `${wort} gesamt: <b>${fmtDur(total)}</b>` : "Noch keine Daten in diesem Zeitraum";
+    ? `${label}: <b>${fmtDur(total)}</b>` : t("noDataPeriod");
 }
 
 function renderHeaders() {
@@ -560,7 +672,7 @@ function renderHeaders() {
       + (iso === todayIso ? " today" : "")
       + (iso === state.selectedDay ? " selected" : "");
     el.innerHTML = `
-      <div class="dh-name">${d.toLocaleDateString("de-DE", { weekday: "short" })}</div>
+      <div class="dh-name">${d.toLocaleDateString(locale(), { weekday: "short" })}</div>
       <div class="dh-num">${d.getDate()}</div>
       <div class="dh-total">${total > 0 ? fmtDur(total) : ""}</div>`;
     el.addEventListener("click", () => { state.selectedDay = iso; render(); });
@@ -663,14 +775,13 @@ function renderStats() {
   const iso = state.selectedDay;
   const sessions = state.days[iso] || [];
   const day = new Date(iso + "T12:00:00");
-  const dateLabel = day.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
+  const dateLabel = day.toLocaleDateString(locale(), { weekday: "long", day: "numeric", month: "long" });
 
   if (!sessions.length) {
     panel.innerHTML = `
       <div class="stats-date">${dateLabel}</div>
-      <div class="stats-sub">Keine Aktivität aufgezeichnet.</div>
-      <p class="stats-note">Sobald der Tracker läuft (<code>start-tracker.cmd</code>),
-      erscheinen hier automatisch deine Aktivitäten.</p>`;
+      <div class="stats-sub">${t("noActivity")}</div>
+      <p class="stats-note">${t("autoAppearHint")}</p>`;
     return;
   }
 
@@ -687,17 +798,17 @@ function renderStats() {
     // Websites per Website-Key umsortierbar, Programme per exe
     const ovKey = a.web ? a.key : a.app;
     const cur = state.overrides[ovKey] || mainCat;
-    const options = Object.entries(CATEGORIES).map(([ck, c]) =>
-      `<option value="${ck}" ${ck === cur ? "selected" : ""}>${c.name}</option>`
+    const options = Object.keys(CATEGORIES).map(ck =>
+      `<option value="${ck}" ${ck === cur ? "selected" : ""}>${catName(ck)}</option>`
     ).join("");
-    const right = `<select class="app-cat-select" data-key="${escapeHtml(ovKey)}" title="Kategorie ändern">${options}</select>`;
-    const neu = (!a.web && !isKnown(a.app)) ? `<span class="badge-new" title="Wird bei der nächsten automatischen Prüfung von Claude kategorisiert">NEU</span>` : "";
+    const right = `<select class="app-cat-select" data-key="${escapeHtml(ovKey)}" title="${t("changeCategory")}">${options}</select>`;
+    const neu = (!a.web && !isKnown(a.app)) ? `<span class="badge-new" title="${t("newBadgeTitle")}">NEU</span>` : "";
     return `
       <div class="app-row">
         <span class="app-dot" style="background:${activityColor(a)}"></span>
         <div class="app-info">
           <div class="app-name" title="${escapeHtml(a.label)}">${icon}${escapeHtml(a.label)}${neu}</div>
-          <div class="app-meta">${fmtDur(a.dur)} · ${a.bursts}× benutzt</div>
+          <div class="app-meta">${fmtDur(a.dur)} · ${a.bursts}${t("usedTimes")}</div>
         </div>
         ${right}
       </div>`;
@@ -706,20 +817,18 @@ function renderStats() {
   const webCount = Object.values(apps).filter(a => a.web).length;
   panel.innerHTML = `
     <div class="stats-date">${dateLabel}</div>
-    <div class="stats-sub">${sessions.length} Aktivitäten · ${Object.keys(apps).length} Einträge${webCount ? ` (davon ${webCount} Websites)` : ""}</div>
+    <div class="stats-sub">${sessions.length} ${t("activities")} · ${Object.keys(apps).length} ${t("entries")}${webCount ? ` (${tf("ofWhichWebsites", webCount)})` : ""}</div>
     <div class="donut-wrap">
       ${donutSVG(catTotals, total)}
       <div class="donut-center">
         <div class="dc-time">${fmtDur(total)}</div>
-        <div class="dc-label">getrackt</div>
+        <div class="dc-label">${t("tracked")}</div>
       </div>
     </div>
     <div class="cat-rows">${catRows}</div>
-    <div class="apps-heading">Top-Programme &amp; Websites</div>
+    <div class="apps-heading">${t("topApps")}</div>
     <div class="app-list">${appRows}</div>
-    <p class="stats-note">🌐 = Website (im Browser erkannt). Jedes Programm <b>und
-    jede Website</b> lässt sich über das Dropdown in eine Kategorie einsortieren –
-    wird lokal gespeichert und sofort überall angewendet.</p>`;
+    <p class="stats-note">${t("webNote")}</p>`;
 
   panel.querySelectorAll(".app-cat-select").forEach(sel => {
     sel.addEventListener("change", () => {
@@ -779,7 +888,7 @@ function barChart(buckets, clickable) {
       const hgt = Math.max(1, (sec / yMax) * ih);
       y -= hgt;
       bars += `<rect x="${cx - barW / 2}" y="${y}" width="${barW}" height="${hgt}" rx="1.5"
-        fill="${CATEGORIES[key].color}" opacity="0.92"><title>${CATEGORIES[key].name}: ${fmtDur(sec)}</title></rect>`;
+        fill="${CATEGORIES[key].color}" opacity="0.92"><title>${catName(key)}: ${fmtDur(sec)}</title></rect>`;
     }
     if (b.total > 0 && n <= 16)
       bars += `<text x="${cx}" y="${y - 5}" text-anchor="middle" font-size="9" fill="#e8eaf2">${fmtShort(b.total)}</text>`;
@@ -792,7 +901,7 @@ function barChart(buckets, clickable) {
     if (clickable && b.iso)
       bars += `<rect x="${padL + slot * i}" y="${padT}" width="${slot}" height="${ih + 30}"
         fill="transparent" style="cursor:pointer" data-bariso="${b.iso}">
-        <title>${b.date.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}: ${b.total ? fmtDur(b.total) : "keine Daten"}</title></rect>`;
+        <title>${b.date.toLocaleDateString(locale(), { weekday: "long", day: "numeric", month: "long" })}: ${b.total ? fmtDur(b.total) : (state.lang === "en" ? "no data" : "keine Daten")}</title></rect>`;
   });
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${grid}${bars}</svg>`;
 }
@@ -806,9 +915,9 @@ function renderStatsView() {
 
   const selector = `
     <div class="period-switch">
-      <button class="pseg ${period === "tag" ? "active" : ""}" data-period="tag">Tag</button>
-      <button class="pseg ${period === "woche" ? "active" : ""}" data-period="woche">Woche</button>
-      <button class="pseg ${period === "monat" ? "active" : ""}" data-period="monat">Monat</button>
+      <button class="pseg ${period === "tag" ? "active" : ""}" data-period="tag">${t("day")}</button>
+      <button class="pseg ${period === "woche" ? "active" : ""}" data-period="woche">${t("week")}</button>
+      <button class="pseg ${period === "monat" ? "active" : ""}" data-period="monat">${t("month")}</button>
     </div>`;
 
   const wire = () => {
@@ -823,25 +932,24 @@ function renderStatsView() {
   };
 
   if (agg.total === 0) {
-    view.innerHTML = selector + `<div class="stats-empty">Keine Daten in diesem Zeitraum – sobald der
-      Tracker läuft, erscheinen hier Diagramme und Auswertungen.</div>`;
+    view.innerHTML = selector + `<div class="stats-empty">${t("noDataYet")}</div>`;
     wire(); return;
   }
 
   // Balkendiagramm-Eimer je nach Zeitraum
   let buckets, clickable = false, chartTitle;
   if (period === "tag") {
-    chartTitle = "Aktivität pro Stunde";
+    chartTitle = t("activityPerHour");
     buckets = hourlyBuckets(allSessions).map((h, i) => ({
       label: i % 3 === 0 ? String(i).padStart(2, "0") : "", total: h.total, catTotals: h.catTotals,
     }));
   } else {
     clickable = true;
-    chartTitle = period === "monat" ? "Aktivität pro Tag im Monat" : "Aktivität pro Tag";
+    chartTitle = period === "monat" ? t("activityPerDayMonth") : t("activityPerDay");
     buckets = days.map(d => {
       const a = aggregate(state.days[isoDate(d)] || []);
       return {
-        label: period === "monat" ? String(d.getDate()) : d.toLocaleDateString("de-DE", { weekday: "short" }),
+        label: period === "monat" ? String(d.getDate()) : d.toLocaleDateString(locale(), { weekday: "short" }),
         sub: period === "woche" ? d.getDate() + "." : "",
         iso: isoDate(d), date: d, total: a.total, catTotals: a.catTotals,
       };
@@ -892,25 +1000,25 @@ function renderStatsView() {
       <div class="catd-section">
         <div class="catd-head">
           <span class="legend-dot" style="background:${CATEGORIES[c].color}"></span>
-          ${CATEGORIES[c].name}
+          ${catName(c)}
           <span class="catd-time">${fmtDur(catSec)} · ${Math.round(catSec / agg.total * 100)} %</span>
         </div>
         ${rows}
       </div>`;
   }).join("");
 
-  const donutLabel = period === "tag" ? "Tag" : period === "monat" ? "Monat" : "Woche";
-  const topTitle = period === "tag" ? "Top-Programme &amp; Websites am Tag"
-    : period === "monat" ? "Top-Programme &amp; Websites im Monat" : "Top-Programme &amp; Websites der Woche";
-  const chartHint = clickable ? `<span class="h2-right">Balken anklicken für den Tag →</span>` : "";
+  const donutLabel = period === "tag" ? t("day") : period === "monat" ? t("month") : t("week");
+  const topTitle = period === "tag" ? t("topAppsDay")
+    : period === "monat" ? t("topAppsMonth") : t("topAppsWeek");
+  const chartHint = clickable ? `<span class="h2-right">${t("clickBarForDay")}</span>` : "";
 
   // Zusammenfassungszeile
   let summary;
   if (period === "tag") {
-    summary = `${allSessions.length} Aktivitäten · ${Object.keys(agg.apps).length} Programme &amp; Websites`;
+    summary = `${allSessions.length} ${t("activities")} · ${Object.keys(agg.apps).length} ${t("appsAndSites")}`;
   } else {
     const activeDays = days.filter(d => (state.days[isoDate(d)] || []).length > 0).length;
-    summary = `${activeDays} von ${days.length} Tagen aktiv · Ø ${fmtDur(agg.total / Math.max(1, activeDays))} pro aktivem Tag · ${Object.keys(agg.apps).length} Programme &amp; Websites`;
+    summary = `${tf("activeDaysOfN", activeDays, days.length)} · ${tf("avgPerActiveDay", fmtDur(agg.total / Math.max(1, activeDays)))} · ${Object.keys(agg.apps).length} ${t("appsAndSites")}`;
   }
 
   // Browser-Auswertung: wofür wird der Browser genutzt (Kategorien + Websites)
@@ -935,7 +1043,7 @@ function renderStatsView() {
     }).join("");
     browserCard = `
       <div class="card">
-        <h2>Im Browser – wofür du den Browser nutzt <span class="h2-right">${fmtDur(bagg.total)} gesamt</span></h2>
+        <h2>${t("inBrowser")} <span class="h2-right">${fmtDur(bagg.total)} ${t("total")}</span></h2>
         <div class="browser-split">
           <div class="donut-wrap">
             ${donutSVG(bagg.catTotals, bagg.total, 128, 15)}
@@ -943,7 +1051,7 @@ function renderStatsView() {
           </div>
           <div class="browser-cats">${bCatOrder.map(c => catRowHTML(c, bagg.catTotals[c], bagg.total)).join("")}</div>
         </div>
-        <div class="apps-heading" style="margin-top:16px">Meistbesuchte Websites &amp; Seiten</div>
+        <div class="apps-heading" style="margin-top:16px">${t("topSites")}</div>
         <div class="browser-sites">${siteRows}</div>
       </div>`;
   }
@@ -959,8 +1067,8 @@ function renderStatsView() {
           <h2>${topTitle}
             <span class="h2-right">
               <select class="sort-select" id="appSortSel">
-                <option value="dur" ${byBursts ? "" : "selected"}>nach Dauer</option>
-                <option value="bursts" ${byBursts ? "selected" : ""}>nach Häufigkeit</option>
+                <option value="dur" ${byBursts ? "" : "selected"}>${t("byDuration")}</option>
+                <option value="bursts" ${byBursts ? "selected" : ""}>${t("byFrequency")}</option>
               </select>
             </span>
           </h2>
@@ -968,13 +1076,13 @@ function renderStatsView() {
         </div>
         ${browserCard}
         <div class="card">
-          <h2>Kategorien im Detail – welche Programme &amp; Websites stecken dahinter</h2>
+          <h2>${t("categoriesDetail")}</h2>
           ${catDetails}
         </div>
       </div>
       <div>
         <div class="card">
-          <h2>Verteilung</h2>
+          <h2>${t("distribution")}</h2>
           <div class="donut-wrap">
             ${donutSVG(agg.catTotals, agg.total)}
             <div class="donut-center">
@@ -1015,7 +1123,7 @@ function renderLegend() {
     if (state.hiddenCats.has(key)) li.className = "hidden-cat";
     li.innerHTML = `
       <span class="legend-dot" style="background:${c.color}"></span>
-      <span class="legend-name">${c.name}</span>
+      <span class="legend-name">${catName(key)}</span>
       <span class="legend-time">${totals[key] ? fmtDur(totals[key]) : ""}</span>`;
     li.addEventListener("click", () => {
       state.hiddenCats.has(key) ? state.hiddenCats.delete(key) : state.hiddenCats.add(key);
@@ -1033,9 +1141,7 @@ function renderStatus() {
   const gen = state.generated[isoDate(new Date())];
   const live = gen && (Date.now() - gen.getTime()) < 90000;
   el.querySelector(".status-dot").className = "status-dot" + (live ? "" : " off");
-  el.querySelector(".status-text").textContent = live
-    ? "Tracker läuft – Daten sind live"
-    : "Tracker ist nicht aktiv";
+  el.querySelector(".status-text").textContent = live ? t("trackerLive") : t("trackerOff");
 }
 
 /* ── Tooltip ── */
@@ -1051,8 +1157,8 @@ function attachTooltip(el, b) {
       <div class="tt-app">${head}</div>
       ${b.title ? `<div class="tt-title">${escapeHtml(b.title)}</div>` : ""}
       ${via}
-      <div class="tt-line"><span class="legend-dot" style="background:${c.color}"></span>${c.name}</div>
-      <div class="tt-line">${fmtClock(b.start)} – ${fmtClock(b.end)} Uhr · <b>${fmtDur(b.active || b.dur)}</b></div>`;
+      <div class="tt-line"><span class="legend-dot" style="background:${c.color}"></span>${catName(b.cat)}</div>
+      <div class="tt-line">${fmtClock(b.start)} – ${fmtClock(b.end)}${t("uhr") ? " " + t("uhr") : ""} · <b>${fmtDur(b.active || b.dur)}</b></div>`;
     tooltip.hidden = false;
   });
   el.addEventListener("mousemove", e => {
@@ -1134,6 +1240,41 @@ function setColorMode(mode) {
 $("#colCat").addEventListener("click", () => setColorMode("kategorie"));
 $("#colApp").addEventListener("click", () => setColorMode("app"));
 
+/* ═══════════════ Sprache (DE/EN) ═══════════════ */
+
+function applyStaticI18n() {
+  document.documentElement.lang = state.lang;
+  document.title = state.lang === "en" ? "Zeitblick – Activity Tracker" : "Zeitblick – Aktivitäts-Tracker";
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const val = t(el.dataset.i18n);
+    if (val === undefined) return;
+    if (/<[a-z][\s\S]*>/i.test(val)) el.innerHTML = val; else el.textContent = val;
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+    const val = t(el.dataset.i18nPh);
+    if (val !== undefined) el.placeholder = val;
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach(el => {
+    const val = t(el.dataset.i18nTitle);
+    if (val !== undefined) el.title = val;
+  });
+  $("#langDe").classList.toggle("active", state.lang !== "en");
+  $("#langEn").classList.toggle("active", state.lang === "en");
+  document.querySelectorAll("#focusDurations .fchip").forEach(b => {
+    b.textContent = `${b.dataset.min} ${t("min")}`;
+  });
+}
+function setLang(lang) {
+  state.lang = lang;
+  saveJSON("zeitblick.lang", lang);
+  applyStaticI18n();
+  render();
+  renderFocus();
+}
+$("#langDe").addEventListener("click", () => setLang("de"));
+$("#langEn").addEventListener("click", () => setLang("en"));
+applyStaticI18n();
+
 /* ═══════════════ Seitenleisten-Umschalter: Ansicht / Fokus-Modus ═══════════════ */
 
 function applySidebarTab() {
@@ -1193,7 +1334,7 @@ function renderFocus() {
   });
 
   if (st.active) {
-    $("#focusModeLabel").textContent = st.mode === "break" ? "Pause läuft" : "Fokus läuft";
+    $("#focusModeLabel").textContent = st.mode === "break" ? t("breakRunning") : t("focusRunning");
     $("#focusTimeLeft").textContent = fmtCountdown(st.remaining_seconds ?? 0);
   }
 
@@ -1204,7 +1345,7 @@ function renderFocus() {
   const chipsWrap = $("#focusBlockedChips");
   chipsWrap.innerHTML = (st.blocked || []).map(kw => `
     <span class="fchip blocked-chip" data-kw="${escapeHtml(kw)}">${escapeHtml(kw)}<span class="focus-chip-x">✕</span></span>
-  `).join("") || `<span class="side-hint">Noch keine Stichworte – füge unten welche hinzu.</span>`;
+  `).join("") || `<span class="side-hint">${t("noKeywordsYet")}</span>`;
   chipsWrap.querySelectorAll(".focus-chip-x").forEach(x => {
     x.addEventListener("click", () => {
       const kw = x.parentElement.dataset.kw;
@@ -1217,7 +1358,7 @@ function renderFocus() {
   if (!goalInputFocused) $("#goalHoursInput").value = goalHours;
   const pct = st.goal_pct ?? 0;
   $("#goalBarFill").style.width = Math.min(100, pct) + "%";
-  $("#goalLine").textContent = `${fmtDur(st.today_seconds || 0)} von ${goalHours} Std. · ${pct} %`;
+  $("#goalLine").textContent = tf("goalLine", fmtDur(st.today_seconds || 0), goalHours, pct);
 }
 
 async function refreshFocus() {

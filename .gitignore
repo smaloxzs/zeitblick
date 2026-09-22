@@ -6,3 +6,9 @@ zeitblick.pid
 focus_state.json
 *.pyc
 __pycache__/
+
+# PyInstaller-Build-Ausgabe (die fertige .exe wird als GitHub-Release-Datei
+# verteilt, nicht ins Repo committet — sonst blaeht das die Historie stark auf)
+build/
+dist/
+*.spec

@@ -19,52 +19,57 @@
         <span class="logo-mark">◔</span>
         <div>
           <div class="logo-name">Zeitblick</div>
-          <div class="logo-sub">Aktivitäts-Tracker</div>
+          <div class="logo-sub" data-i18n="appSub">Aktivitäts-Tracker</div>
         </div>
       </div>
 
       <div class="tracker-status" id="trackerStatus">
         <span class="status-dot off"></span>
-        <span class="status-text">Prüfe Tracker …</span>
+        <span class="status-text" data-i18n="checkingTracker">Prüfe Tracker …</span>
+      </div>
+
+      <div class="lang-switch" id="langSwitch">
+        <button id="langDe" class="lseg active">DE</button>
+        <button id="langEn" class="lseg">EN</button>
       </div>
 
       <div class="sidebar-tabs">
-        <button id="tabAnsicht" class="stab active">Ansicht</button>
-        <button id="tabFokus" class="stab">Fokus-Modus</button>
+        <button id="tabAnsicht" class="stab active" data-i18n="tabAnsicht">Ansicht</button>
+        <button id="tabFokus" class="stab" data-i18n="tabFokus">Fokus-Modus</button>
       </div>
 
       <!-- ── Tab „Ansicht“: Darstellung des Kalenders ── -->
       <div id="sidebarAnsicht">
         <div class="side-section">
-          <div class="side-heading">Farbe der Blöcke</div>
+          <div class="side-heading" data-i18n="blockColor">Farbe der Blöcke</div>
           <div class="color-switch">
-            <button id="colCat" class="seg2">nach Kategorie</button>
-            <button id="colApp" class="seg2">nach Programm</button>
+            <button id="colCat" class="seg2" data-i18n="byCategory">nach Kategorie</button>
+            <button id="colApp" class="seg2" data-i18n="byApp">nach Programm</button>
           </div>
-          <p class="side-hint">„nach Programm“ gibt jedem Spiel, Programm und jeder Website eine eigene Farbe.</p>
+          <p class="side-hint" data-i18n="byAppHint">„nach Programm“ gibt jedem Spiel, Programm und jeder Website eine eigene Farbe.</p>
         </div>
 
         <div class="side-section">
-          <div class="side-heading">Kategorien</div>
+          <div class="side-heading" data-i18n="categories">Kategorien</div>
           <ul class="legend" id="legend"></ul>
-          <p class="side-hint">Klicken, um eine Kategorie im Kalender aus- bzw. einzublenden.</p>
+          <p class="side-hint" data-i18n="categoriesHint">Klicken, um eine Kategorie im Kalender aus- bzw. einzublenden.</p>
         </div>
 
         <div class="side-section">
-          <div class="side-heading">Detailgrad</div>
+          <div class="side-heading" data-i18n="detailLevel">Detailgrad</div>
           <div class="color-switch">
-            <button id="det1" class="seg2" title="Weg-Klicks unter 1 Minute zusammenfassen">&lt; 1 Min.</button>
-            <button id="det2" class="seg2" title="Weg-Klicks unter 2 Minuten zusammenfassen">&lt; 2 Min.</button>
-            <button id="detGenau" class="seg2" title="Jede Aktivität einzeln zeigen">Genau</button>
+            <button id="det1" class="seg2" data-i18n="detail1" data-i18n-title="detail1Title" title="Weg-Klicks unter 1 Minute zusammenfassen">&lt; 1 Min.</button>
+            <button id="det2" class="seg2" data-i18n="detail2" data-i18n-title="detail2Title" title="Weg-Klicks unter 2 Minuten zusammenfassen">&lt; 2 Min.</button>
+            <button id="detGenau" class="seg2" data-i18n="detailExact" data-i18n-title="detailExactTitle" title="Jede Aktivität einzeln zeigen">Genau</button>
           </div>
-          <p class="side-hint">„Zusammengefasst“ schluckt kurze Weg-Klicks in die laufende Tätigkeit – z. B. bleibt Valorant ein Block, auch wenn du zwischendurch kurz wegtabst. Wähle, ob Wechsel unter 1 oder unter 2 Minuten geschluckt werden. „Genau“ zeigt jede Aktivität ab 5 Sek. einzeln.</p>
+          <p class="side-hint" data-i18n="detailHint">„Zusammengefasst“ schluckt kurze Weg-Klicks in die laufende Tätigkeit – z. B. bleibt Valorant ein Block, auch wenn du zwischendurch kurz wegtabst. Wähle, ob Wechsel unter 1 oder unter 2 Minuten geschluckt werden. „Genau“ zeigt jede Aktivität ab 5 Sek. einzeln.</p>
         </div>
       </div>
 
       <!-- ── Tab „Fokus-Modus“: Pomodoro + Tagesziel ── -->
       <div id="sidebarFokus" hidden>
         <div class="side-section focus-section" id="focusSection">
-          <div class="side-heading">Fokus-Modus</div>
+          <div class="side-heading" data-i18n="focusMode">Fokus-Modus</div>
 
           <div id="focusIdle">
             <div class="chip-row-app" id="focusDurations">
@@ -73,7 +78,7 @@
               <button class="fchip" data-min="60">60 Min.</button>
               <button class="fchip" data-min="90">90 Min.</button>
             </div>
-            <button class="btn-focus-start" id="focusStartBtn">▶ Fokus starten</button>
+            <button class="btn-focus-start" id="focusStartBtn" data-i18n="startFocus">▶ Fokus starten</button>
           </div>
 
           <div id="focusActive" hidden>
@@ -81,44 +86,44 @@
               <span class="focus-live-mode" id="focusModeLabel">Fokus läuft</span>
               <span class="focus-live-time" id="focusTimeLeft">25:00</span>
             </div>
-            <button class="btn-focus-stop" id="focusStopBtn">Sitzung beenden</button>
+            <button class="btn-focus-stop" id="focusStopBtn" data-i18n="endSession">Sitzung beenden</button>
           </div>
 
           <label class="toggle-row">
             <input type="checkbox" id="focusNotifToggle" checked>
-            <span>Benachrichtigung bei Ablenkung</span>
+            <span data-i18n="notifyOnDistraction">Benachrichtigung bei Ablenkung</span>
           </label>
           <label class="toggle-row">
             <input type="checkbox" id="focusBlockToggle" checked>
-            <span>Ablenkende Fenster automatisch minimieren</span>
+            <span data-i18n="autoMinimize">Ablenkende Fenster automatisch minimieren</span>
           </label>
 
           <div id="focusBlockedWrap">
-            <div class="side-heading focus-sub-heading">Blockierte Stichworte</div>
+            <div class="side-heading focus-sub-heading" data-i18n="blockedKeywords">Blockierte Stichworte</div>
             <div class="chip-row-app chip-row-scroll" id="focusBlockedChips"></div>
             <div class="focus-add-row">
-              <input type="text" id="focusAddInput" placeholder="z. B. facebook">
+              <input type="text" id="focusAddInput" data-i18n-ph="addKeywordPlaceholder" placeholder="z. B. facebook">
               <button id="focusAddBtn" title="Hinzufügen">+</button>
             </div>
           </div>
-          <p class="side-hint">Fenster, deren Name oder Titel eines dieser Stichworte enthält, werden während einer Fokus-Sitzung automatisch minimiert, inklusive kurzer Erinnerung mit Ausnahme-Option.</p>
+          <p class="side-hint" data-i18n="focusHint">Fenster, deren Name oder Titel eines dieser Stichworte enthält, werden während einer Fokus-Sitzung automatisch minimiert, inklusive kurzer Erinnerung mit Ausnahme-Option.</p>
         </div>
 
         <div class="side-section goal-section" id="goalSection">
-          <div class="side-heading">Tagesziel</div>
+          <div class="side-heading" data-i18n="dailyGoal">Tagesziel</div>
           <div class="goal-bar-track"><div class="goal-bar-fill" id="goalBarFill" style="width:0%"></div></div>
           <div class="goal-line" id="goalLine">– von – Std. getrackt</div>
           <div class="goal-edit-row">
-            <span>Ziel:</span>
+            <span data-i18n="goalLabel">Ziel:</span>
             <input type="number" id="goalHoursInput" min="1" max="16" step="0.5" value="6">
-            <span>Std./Tag</span>
+            <span data-i18n="perDay">Std./Tag</span>
           </div>
         </div>
       </div>
 
       <div class="side-footer">
-        <div class="side-heading">Tracker starten</div>
-        <p class="side-hint">Doppelklick auf <code>start-tracker.cmd</code> im Projektordner – läuft dann unsichtbar im Hintergrund.</p>
+        <div class="side-heading" data-i18n="trackerStart">Tracker starten</div>
+        <p class="side-hint" data-i18n="trackerStartHint">Doppelklick auf <code>start-tracker.cmd</code> im Projektordner – läuft dann unsichtbar im Hintergrund.</p>
       </div>
     </aside>
 
@@ -126,19 +131,19 @@
     <main class="main">
       <header class="topbar">
         <div class="nav-btns">
-          <button id="prevWeek" class="btn icon-btn" title="Vorherige Woche">‹</button>
-          <button id="todayBtn" class="btn">Heute</button>
-          <button id="nextWeek" class="btn icon-btn" title="Nächste Woche">›</button>
+          <button id="prevWeek" class="btn icon-btn" data-i18n-title="prevWeek" title="Vorherige Woche">‹</button>
+          <button id="todayBtn" class="btn" data-i18n="today">Heute</button>
+          <button id="nextWeek" class="btn icon-btn" data-i18n-title="nextWeek" title="Nächste Woche">›</button>
         </div>
         <div class="view-switch">
-          <button id="viewCal" class="seg active">Kalender</button>
-          <button id="viewStats" class="seg">Statistik</button>
+          <button id="viewCal" class="seg active" data-i18n="calendar">Kalender</button>
+          <button id="viewStats" class="seg" data-i18n="statistics">Statistik</button>
         </div>
         <h1 id="weekLabel">…</h1>
         <div class="week-total" id="weekTotal"></div>
         <div class="zoom-btns">
-          <button id="zoomOut" class="btn icon-btn" title="Herauszoomen">−</button>
-          <button id="zoomIn" class="btn icon-btn" title="Hineinzoomen (genauere Zeitansicht)">+</button>
+          <button id="zoomOut" class="btn icon-btn" data-i18n-title="zoomOut" title="Herauszoomen">−</button>
+          <button id="zoomIn" class="btn icon-btn" data-i18n-title="zoomIn" title="Hineinzoomen (genauere Zeitansicht)">+</button>
         </div>
       </header>
 
@@ -159,7 +164,7 @@
 
     <!-- ══════════ Rechte Statistik-Leiste ══════════ -->
     <aside class="stats" id="statsPanel">
-      <div class="stats-empty">Lade Daten …</div>
+      <div class="stats-empty" data-i18n="loadingData">Lade Daten …</div>
     </aside>
 
   </div>
