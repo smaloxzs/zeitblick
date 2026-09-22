@@ -636,6 +636,22 @@ def install_self():
     import winreg
 
     os.makedirs(APP_DIR, exist_ok=True)
+
+    # Falls schon eine (aeltere) Version im Hintergrund laeuft - z. B. per
+    # Autostart aus einer frueheren Installation -, sperrt Windows deren
+    # .exe-Datei zum Ueberschreiben. Deshalb hier zuerst eine evtl. laufende
+    # Instanz beenden, sonst wuerde copy2() stillschweigend fehlschlagen und
+    # man wuerde beim Neustart einfach wieder die alte, laufende Version zu
+    # sehen bekommen statt des gerade heruntergeladenen Updates.
+    if os.path.exists(PID_FILE):
+        try:
+            with open(PID_FILE, "r", encoding="utf-8") as f:
+                old_pid = f.read().strip()
+            subprocess.run(["taskkill", "/PID", old_pid, "/F"], creationflags=subprocess.CREATE_NO_WINDOW, check=False)
+            time.sleep(1)
+        except (OSError, ValueError):
+            pass
+
     try:
         if os.path.abspath(sys.executable) != os.path.abspath(INSTALLED_EXE):
             shutil.copy2(sys.executable, INSTALLED_EXE)
