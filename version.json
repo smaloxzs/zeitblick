@@ -1,6 +1,6 @@
 {
   "_info": "Wird von Zeitblick beim Start abgefragt (tracker.py: check_for_update), um zu pruefen, ob eine neuere Version verfuegbar ist. Bei einem neuen Release hier die Version + einen echten download_url aktualisieren und nach main pushen.",
-  "version": "1.1.5",
-  "download_url": "https://github.com/smaloxzs/zeitblick/releases/download/v1.1.5/Zeitblick.exe",
-  "notes": "Kritischer Fix: Kalender/Tracker-Status zeigte in der .exe faelschlich 'nicht aktiv' und leer."
+  "version": "1.1.6",
+  "download_url": "https://github.com/smaloxzs/zeitblick/releases/download/v1.1.6/Zeitblick.exe",
+  "notes": "Schrift jetzt direkt in der App statt von Google Fonts (keine Anfrage mehr ins Internet). Donut-Beschriftung ragt im deutschen UI nicht mehr in den Ring."
 }
