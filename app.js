@@ -1290,8 +1290,17 @@ function setSidebarTab(tab) {
   applySidebarTab();
 }
 $("#tabAnsicht").addEventListener("click", () => setSidebarTab("ansicht"));
-$("#tabFokus").addEventListener("click", () => setSidebarTab("fokus"));
+$("#tabFokus").addEventListener("click", () => {
+  setSidebarTab("fokus");
+  saveJSON("zeitblick.fokusTabSeen", true);
+  $("#fokusTabHint").hidden = true;
+});
 applySidebarTab();
+// Roter Punkt am Fokus-Modus-Tab, bis er das erste Mal angeklickt wurde -
+// sonst finden neue Nutzer den Fokus-Modus u.U. nie (sitzt hinter dem Tab).
+if (loadJSON("zeitblick.fokusTabSeen", false)) {
+  $("#fokusTabHint").hidden = true;
+}
 
 /* ═══════════════ Fokus-Modus & Tagesziel ═══════════════ */
 

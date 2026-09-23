@@ -145,6 +145,22 @@ code {
 }
 .sidebar-tabs .stab:hover { color: var(--text); }
 .sidebar-tabs .stab.active { background: var(--accent); color: #fff; }
+.sidebar-tabs .stab { position: relative; }
+.stab-hint {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--danger);
+  margin-left: 5px;
+  vertical-align: middle;
+  animation: stabHintPulse 1.4s ease-in-out infinite;
+}
+.stab-hint[hidden] { display: none; }
+@keyframes stabHintPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .4; transform: scale(0.7); }
+}
 
 #sidebarAnsicht, #sidebarFokus {
   display: flex;
