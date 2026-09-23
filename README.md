@@ -1,5 +1,10 @@
 # Zeitblick – lokaler Aktivitäts-Tracker (Rize-Nachbau)
 
+> **Willst du Zeitblick einfach nur benutzen (kein Programmieren)?** Dann brauchst du
+> nichts von dieser Seite hier – einfach **https://smaloxzs.github.io/zeitblick-landing/**
+> besuchen und die fertige `Zeitblick.exe` herunterladen. Alles unten (`start-tracker.cmd`,
+> `install-autostart.cmd` usw.) sind nur Skripte für die Entwicklung aus dem Quellcode.
+
 **Sprache:** Das Dashboard gibt es komplett auf Deutsch und Englisch – oben in
 der Seitenleiste per DE/EN-Umschalter wechselbar, wird gemerkt.
 

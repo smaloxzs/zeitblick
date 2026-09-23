@@ -47,7 +47,7 @@ from datetime import datetime, timedelta
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
-VERSION = "1.1.3"
+VERSION = "1.1.4"
 VERSION_URL = "https://raw.githubusercontent.com/smaloxzs/zeitblick/main/version.json"
 APP_NAME = "Zeitblick"
 UNINSTALL_KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\Zeitblick"
@@ -609,6 +609,30 @@ def check_for_update():
         pass  # kein Internet / Datei nicht erreichbar -> einfach weiterlaufen
 
 
+def open_app_window(url):
+    """Oeffnet das Dashboard als eigenes App-Fenster (ohne Adressleiste/Tabs)
+    per Edge/Chrome --app-Modus - genau das Verfahren, das Zeitblick.cmd fuer
+    die Skript-Variante schon nutzt. Sieht dadurch wie eine echte installierte
+    App aus statt wie ein gewoehnlicher Browser-Tab. Faellt auf einen normalen
+    Browser-Tab zurueck, falls weder Edge noch Chrome gefunden werden."""
+    candidates = [
+        os.path.join(os.environ.get("ProgramFiles(x86)", ""), "Microsoft", "Edge", "Application", "msedge.exe"),
+        os.path.join(os.environ.get("ProgramFiles(x86)", ""), "Google", "Chrome", "Application", "chrome.exe"),
+        os.path.join(os.environ.get("ProgramFiles", ""), "Google", "Chrome", "Application", "chrome.exe"),
+    ]
+    for browser in candidates:
+        if browser and os.path.isfile(browser):
+            try:
+                subprocess.Popen([browser, f"--app={url}", "--window-size=1280,860"])
+                return
+            except OSError:
+                continue
+    try:
+        webbrowser.open(url)
+    except Exception:
+        pass
+
+
 def _run_hidden_powershell(cmd):
     subprocess.run(
         ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden", "-Command", cmd],
@@ -616,11 +640,12 @@ def _run_hidden_powershell(cmd):
     )
 
 
-def _create_shortcut(link_path, target, workdir, icon=None):
+def _create_shortcut(link_path, target, workdir, icon=None, args=None):
     icon_line = f"$s.IconLocation='{icon}'; " if icon else ""
+    args_line = f"$s.Arguments='{args}'; " if args else ""
     cmd = (
         f"$s=(New-Object -ComObject WScript.Shell).CreateShortcut('{link_path}'); "
-        f"$s.TargetPath='{target}'; $s.WorkingDirectory='{workdir}'; {icon_line}"
+        f"$s.TargetPath='{target}'; $s.WorkingDirectory='{workdir}'; {icon_line}{args_line}"
         f"$s.WindowStyle=7; $s.Save()"
     )
     _run_hidden_powershell(cmd)
@@ -661,8 +686,11 @@ def install_self():
 
     desktop = os.path.join(os.path.expanduser("~"), "Desktop")
     start_menu = os.path.join(os.environ.get("APPDATA", ""), "Microsoft", "Windows", "Start Menu", "Programs")
-    _create_shortcut(os.path.join(desktop, "Zeitblick.lnk"), INSTALLED_EXE, APP_DIR)
-    _create_shortcut(os.path.join(start_menu, "Zeitblick.lnk"), INSTALLED_EXE, APP_DIR)
+    # --open (nicht im Autostart-Registry-Eintrag!) unterscheidet einen
+    # bewussten Icon-Klick vom stillen Autostart bei jedem Hochfahren -
+    # nur bei --open soll sich sichtbar das Dashboard oeffnen.
+    _create_shortcut(os.path.join(desktop, "Zeitblick.lnk"), INSTALLED_EXE, APP_DIR, args="--open")
+    _create_shortcut(os.path.join(start_menu, "Zeitblick.lnk"), INSTALLED_EXE, APP_DIR, args="--open")
 
     try:
         with winreg.CreateKey(winreg.HKEY_CURRENT_USER, RUN_KEY) as k:
@@ -678,11 +706,12 @@ def install_self():
     except OSError as exc:
         print("Registry-Eintrag fehlgeschlagen:", exc, file=sys.stderr)
 
-    # --first-run: signalisiert der neu gestarteten Kopie, nach dem
-    # erfolgreichen Start automatisch das Dashboard im Browser zu oeffnen -
-    # ohne das saehe ein Nutzer nach dem Doppelklick (noconsole!) ueberhaupt
-    # keine Rueckmeldung und wuerde die App faelschlich fuer kaputt halten.
-    subprocess.Popen([INSTALLED_EXE, "--first-run"])
+    # --open: signalisiert der neu gestarteten Kopie, nach dem erfolgreichen
+    # Start automatisch das Dashboard zu oeffnen - ohne das saehe ein Nutzer
+    # nach dem Doppelklick (noconsole!) ueberhaupt keine Rueckmeldung und
+    # wuerde die App faelschlich fuer kaputt halten. Derselbe Schalter wie
+    # bei den Desktop-/Startmenue-Verknuepfungen (siehe oben).
+    subprocess.Popen([INSTALLED_EXE, "--open"])
     return True
 
 
@@ -840,16 +869,16 @@ def main():
 
     os.makedirs(APP_DIR, exist_ok=True)
 
+    # --open kommt von den Desktop-/Startmenue-Verknuepfungen (bewusster Klick)
+    # und vom Erst-Install-Relaunch, aber NICHT vom stillen Autostart-Registry-
+    # Eintrag - nur dann soll sich sichtbar das Dashboard oeffnen.
+    show_dashboard = "--open" in sys.argv
+
     if not acquire_singleton():
         print("Zeitblick laeuft bereits - diese Instanz beendet sich.")
         print(f"Dashboard: http://localhost:{PORT}")
-        # Jemand hat die App erneut geoeffnet (Desktop-/Startmenue-Icon), waehrend
-        # sie schon im Hintergrund lief - wie bei jeder normalen App soll das
-        # Klicken auf das Icon sichtbar etwas tun, also das Dashboard zeigen.
-        try:
-            webbrowser.open(f"http://localhost:{PORT}")
-        except Exception:
-            pass
+        if show_dashboard:
+            open_app_window(f"http://localhost:{PORT}")
         return
 
     try:
@@ -863,13 +892,10 @@ def main():
         f.write(str(os.getpid()))
     atexit.register(lambda: os.path.exists(PID_FILE) and os.remove(PID_FILE))
 
-    if "--first-run" in sys.argv:
+    if show_dashboard:
         # Einzige sichtbare Rueckmeldung nach der stillen Installation
         # (noconsole) - ohne das denkt man, der Doppelklick hat nichts getan.
-        try:
-            webbrowser.open(f"http://localhost:{PORT}")
-        except Exception:
-            pass
+        open_app_window(f"http://localhost:{PORT}")
 
     prune_old_data()
     tracker = Tracker()
