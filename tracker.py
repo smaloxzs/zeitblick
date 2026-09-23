@@ -760,6 +760,10 @@ def uninstall_self():
 
 
 class Handler(SimpleHTTPRequestHandler):
+    # Die mitgelieferte Schrift (fonts/*.woff2) kennt mimetypes nicht, sie
+    # ginge sonst als application/octet-stream raus.
+    extensions_map = {**SimpleHTTPRequestHandler.extensions_map, ".woff2": "font/woff2"}
+
     def end_headers(self):
         self.send_header("Cache-Control", "no-store")
         super().end_headers()

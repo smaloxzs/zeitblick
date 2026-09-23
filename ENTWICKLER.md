@@ -19,6 +19,7 @@ keine Cloud, keine Screenshots, kein Keylogging – liest nur Fenster-Metadaten
 | `tracker.py` | Python (nur Stdlib, inkl. tkinter). Pollt via Win32 alle 5 s das Vordergrundfenster, erkennt Leerlauf, schreibt `data/JJJJ-MM-TT.json`, prüft den Fokus-Modus (`check_focus`/`check_daily_goal`), zeigt Desktop-Toasts (`start_notification_ui`), serviert Dashboard + `/api/focus/*`-API auf Port **8771**. Einzel-Instanz über Windows-Mutex. |
 | `index.html` | Grundgerüst des Dashboards (Sidebar inkl. Fokus-Modus/Tagesziel, Kalender, Statistik-Container). |
 | `style.css` | Dunkles Rize-Design. |
+| `fonts/` | Selbst gehostete Überschriften-Schrift Space Grotesk (woff2, latin + latin-ext, SIL OFL). Bewusst **kein** Google Fonts: das Dashboard macht keinen einzigen Aufruf ins Internet. `Handler.extensions_map` liefert `.woff2` als `font/woff2` aus, `build_exe.py` packt den Ordner per `--add-data fonts;fonts` mit in die .exe. |
 | `app.js` | Gesamte Dashboard-Logik: Laden, Kategorisieren, Kalender, Statistik, alle Umschalter, Fokus-Modus-UI (spricht die `/api/focus`-Endpunkte an). |
 | `categories.json` | Automatisch gelernte App→Kategorie-Zuordnungen (von der geplanten Aufgabe gepflegt). |
 | `data/JJJJ-MM-TT.json` | Eine Datei pro Tag: `{app, title, start, end}` je Session. |
@@ -187,7 +188,7 @@ hartkodieren.
   im Projektordner).
 - Gebaute `.exe` (PyInstaller `--onefile`): `ASSETS_DIR` = `sys._MEIPASS`
   (temporärer Extraktionsordner, bei jedem Start neu, nur lesend für
-  index.html/app.js/style.css/categories.json), `APP_DIR` =
+  index.html/app.js/style.css/categories.json/fonts), `APP_DIR` =
   `%LOCALAPPDATA%\Zeitblick` (persistent, hier landen `data/`,
   `focus_state.json`, `zeitblick.pid`). `BASE_DIR` (Web-Server-Root) bleibt
   `ASSETS_DIR`.

@@ -29,6 +29,7 @@ def main():
         "--add-data", f"{os.path.join(HERE, 'style.css')}{sep}.",
         "--add-data", f"{os.path.join(HERE, 'app.js')}{sep}.",
         "--add-data", f"{os.path.join(HERE, 'categories.json')}{sep}.",
+        "--add-data", f"{os.path.join(HERE, 'fonts')}{sep}fonts",
         "--distpath", os.path.join(HERE, "dist"),
         "--workpath", os.path.join(HERE, "build"),
         "--specpath", HERE,
