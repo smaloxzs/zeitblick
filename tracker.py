@@ -47,7 +47,7 @@ from datetime import datetime, timedelta
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
-VERSION = "1.1.4"
+VERSION = "1.1.5"
 VERSION_URL = "https://raw.githubusercontent.com/smaloxzs/zeitblick/main/version.json"
 APP_NAME = "Zeitblick"
 UNINSTALL_KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\Zeitblick"
@@ -789,7 +789,35 @@ class Handler(SimpleHTTPRequestHandler):
             return {}
 
     def do_GET(self):
-        if self.path.split("?")[0] == "/api/focus":
+        path = self.path.split("?")[0]
+
+        # Die Tag-Dateien (data/JJJJ-MM-TT.json) liegen unter DATA_DIR, nicht
+        # unter BASE_DIR/ASSETS_DIR (dem Ordner der mitgelieferten index.html/
+        # app.js). Bei der Skript-Variante ist das zufaellig derselbe Ordner,
+        # weshalb es dort nie auffiel - bei der gebauten .exe liegen beide
+        # Ordner an komplett unterschiedlichen Orten (ASSETS_DIR ist der
+        # temporaere PyInstaller-Extraktionsordner). Ohne diese Sonderbehandlung
+        # antwortet die generische Static-File-Auslieferung hier immer mit 404,
+        # das Dashboard zeigt dauerhaft "Tracker aus" und einen leeren Kalender,
+        # obwohl im Hintergrund laengst getrackt und gespeichert wird.
+        if path.startswith("/data/") and path.endswith(".json"):
+            # os.path.basename() verwirft jegliche "../"-Anteile von selbst,
+            # damit bleibt der Zugriff auf DATA_DIR beschraenkt.
+            file_path = os.path.join(DATA_DIR, os.path.basename(path))
+            try:
+                with open(file_path, "rb") as f:
+                    body = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+            except OSError:
+                self.send_response(404)
+                self.end_headers()
+            return
+
+        if path == "/api/focus":
             with FOCUS_LOCK:
                 st = load_focus()
             now = datetime.now()

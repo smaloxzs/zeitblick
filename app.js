@@ -1428,5 +1428,11 @@ applyView();
 loadWeek().then(() => { if (state.view !== "statistik") autoScroll(); });
 
 /* Auto-Refresh + Jetzt-Linie */
+// Direkt nach der Installation ist die erste Datenschreibung des Trackers
+// (alle FLUSH_INTERVAL=20s) evtl. noch nicht fertig, wenn die Seite laedt -
+// ohne diesen fruehen Zusatz-Check wuerde "Tracker aus" bis zu ganze 30
+// Sekunden lang faelschlich stehen bleiben, bevor der normale 30s-Rhythmus
+// erstmals greift.
+setTimeout(refreshToday, 5000);
 setInterval(refreshToday, REFRESH_MS);
 setInterval(() => { if (state.view !== "statistik") renderCalendar(); }, 60000);
