@@ -60,6 +60,7 @@ const I18N = {
     dailyGoal: "Tagesziel", goalLine: (t, g, p) => `${t} von ${g} Std. · ${p} %`,
     goalLabel: "Ziel:", perDay: "Std./Tag",
     min: "Min.", sec: "Sek.", h: "Std.", used: "genutzt", uhr: "Uhr",
+    durShort: (h, m) => `${h}:${String(m).padStart(2, "0")} Std.`,
   },
   en: {
     trackerLive: "Tracker running – data is live", trackerOff: "Tracker is not active",
@@ -110,6 +111,7 @@ const I18N = {
     dailyGoal: "Daily goal", goalLine: (t, g, p) => `${t} of ${g}h · ${p}%`,
     goalLabel: "Goal:", perDay: "h/day",
     min: "min", sec: "s", h: "h", used: "used", uhr: "",
+    durShort: (h, m) => m ? `${h} h ${m} min` : `${h} h`,
   },
 };
 function t(key) { return I18N[state.lang][key]; }
@@ -344,9 +346,16 @@ function periodLabel() {
 function fmtDur(sec) {
   sec = Math.round(sec);
   if (sec < 60) return `${sec} ${t("sec")}`;
-  const h = Math.floor(sec / 3600), m = Math.round((sec % 3600) / 60);
+  // erst auf Minuten runden, sonst wird aus 59:59 "60 Min." bzw. "1 Std. 60 Min."
+  const mins = Math.round(sec / 60), h = Math.floor(mins / 60), m = mins % 60;
   if (h === 0) return `${m} ${t("min")}`;
   return m === 0 ? `${h} ${t("h")}` : `${h} ${t("h")} ${m} ${t("min")}`;
+}
+/* Kurzform fuer die Donut-Mitte: "53:08 Std." statt "53 Std. 8 Min." */
+function fmtDurShort(sec) {
+  const mins = Math.round(sec / 60);
+  if (mins < 60) return fmtDur(sec);
+  return tf("durShort", Math.floor(mins / 60), mins % 60);
 }
 function fmtClock(d) {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
@@ -396,6 +405,25 @@ function donutSVG(catTotals, total, size = 150, stroke = 16) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
     <circle r="${R}" cx="${c}" cy="${c}" fill="none" stroke="#262a3a" stroke-width="${stroke}"></circle>
     ${segs}</svg>`;
+}
+
+/* Beschriftung in der Donut-Mitte. Die Zeit wird per Canvas vermessen und die
+   Schrift notfalls verkleinert, damit sie nie in den Ring ragt (lange Monats-
+   summen, kleiner Browser-Donut). Passt zu den Maßen aus donutSVG(); .dc-time
+   erbt die Schrift von body, deshalb wird mit dieser gemessen. */
+let measureCtx = null;
+function donutCenterHTML(sec, label, size = 150, stroke = 16, fontPx = 19) {
+  const text = fmtDurShort(sec);
+  const maxW = (size - 2 * stroke - 4) * 0.85;  // Innendurchmesser minus Rand
+  measureCtx = measureCtx || document.createElement("canvas").getContext("2d");
+  measureCtx.font = `700 ${fontPx}px ${getComputedStyle(document.body).fontFamily}`;
+  const w = measureCtx.measureText(text).width;
+  const fs = w > maxW ? Math.max(10, Math.floor(fontPx * maxW / w * 10) / 10) : fontPx;
+  return `
+    <div class="donut-center">
+      <div class="dc-time" style="font-size:${fs}px">${text}</div>
+      <div class="dc-label">${label}</div>
+    </div>`;
 }
 
 function catRowHTML(cat, sec, total) {
@@ -820,10 +848,7 @@ function renderStats() {
     <div class="stats-sub">${sessions.length} ${t("activities")} · ${Object.keys(apps).length} ${t("entries")}${webCount ? ` (${tf("ofWhichWebsites", webCount)})` : ""}</div>
     <div class="donut-wrap">
       ${donutSVG(catTotals, total)}
-      <div class="donut-center">
-        <div class="dc-time">${fmtDur(total)}</div>
-        <div class="dc-label">${t("tracked")}</div>
-      </div>
+      ${donutCenterHTML(total, t("tracked"))}
     </div>
     <div class="cat-rows">${catRows}</div>
     <div class="apps-heading">${t("topApps")}</div>
@@ -1047,7 +1072,7 @@ function renderStatsView() {
         <div class="browser-split">
           <div class="donut-wrap">
             ${donutSVG(bagg.catTotals, bagg.total, 128, 15)}
-            <div class="donut-center"><div class="dc-time" style="font-size:14px">${fmtDur(bagg.total)}</div><div class="dc-label">Browser</div></div>
+            ${donutCenterHTML(bagg.total, "Browser", 128, 15, 14)}
           </div>
           <div class="browser-cats">${bCatOrder.map(c => catRowHTML(c, bagg.catTotals[c], bagg.total)).join("")}</div>
         </div>
@@ -1085,10 +1110,7 @@ function renderStatsView() {
           <h2>${t("distribution")}</h2>
           <div class="donut-wrap">
             ${donutSVG(agg.catTotals, agg.total)}
-            <div class="donut-center">
-              <div class="dc-time">${fmtDur(agg.total)}</div>
-              <div class="dc-label">${donutLabel}</div>
-            </div>
+            ${donutCenterHTML(agg.total, donutLabel)}
           </div>
           <div class="cat-rows">${catOrder.map(c => catRowHTML(c, agg.catTotals[c], agg.total)).join("")}</div>
           <p class="stats-note">${summary}</p>
