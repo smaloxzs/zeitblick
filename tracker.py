@@ -47,7 +47,7 @@ from datetime import datetime, timedelta
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
-VERSION = "1.1.5"
+VERSION = "1.1.6"
 VERSION_URL = "https://raw.githubusercontent.com/smaloxzs/zeitblick/main/version.json"
 APP_NAME = "Zeitblick"
 UNINSTALL_KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\Zeitblick"
